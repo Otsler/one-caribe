@@ -186,10 +186,17 @@ alert("Salida registrada");
 
 // ================= TABLAS =================
 function verEntradas(){
-let data=JSON.parse(localStorage.getItem("entradas"))||[];
+
+db.collection("entradas")
+.orderBy("fecha","desc")
+.onSnapshot(snapshot=>{
+
 tablaEntradas.innerHTML="";
 
-data.slice().reverse().forEach(x=>{
+snapshot.forEach(doc=>{
+
+let x = doc.data();
+
 tablaEntradas.innerHTML+=`
 <tr>
 <td>${x.fecha}</td>
@@ -197,7 +204,11 @@ tablaEntradas.innerHTML+=`
 <td>${x.referencia}</td>
 <td>${x.pacas}</td>
 <td>${x.usuario}</td>
-</tr>`;
+</tr>
+`;
+
+});
+
 });
 }
 
