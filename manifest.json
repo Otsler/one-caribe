@@ -1,0 +1,16 @@
+{
+  "name": "ONE CARIBE",
+  "short_name": "ONE CARIBE",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#1e293b",
+  "theme_color": "#1e293b",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}
