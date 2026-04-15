@@ -348,3 +348,14 @@ if(admin) return true;
 alert("Clave incorrecta");
 return false;
 }
+function toggleMenu(){
+
+let sidebar = document.querySelector(".sidebar");
+
+if(sidebar.style.left === "0px"){
+sidebar.style.left = "-220px";
+}else{
+sidebar.style.left = "0px";
+}
+
+}
