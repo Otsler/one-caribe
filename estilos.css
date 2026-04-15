@@ -11,6 +11,7 @@ color:white;
 padding:15px;
 display:flex;
 justify-content:space-between;
+align-items:center;
 }
 
 /* SIDEBAR */
@@ -20,12 +21,17 @@ background:#0f172a;
 height:100vh;
 position:fixed;
 color:white;
+top:0;
+left:0;
+transition:0.3s;
 }
 
 .sidebar a{
 display:block;
 padding:15px;
 cursor:pointer;
+color:white;
+text-decoration:none;
 }
 
 .sidebar a:hover{
@@ -36,23 +42,42 @@ background:#1e293b;
 .content{
 margin-left:200px;
 padding:20px;
+transition:0.3s;
 }
 
 .card{
 background:white;
 padding:25px;
 border-radius:10px;
+box-shadow:0 2px 6px rgba(0,0,0,0.1);
 }
 
 /* INPUTS */
-input,select,button{
+input,select{
 width:100%;
 padding:12px;
 margin:8px 0;
 font-size:16px;
+border:1px solid #ccc;
+border-radius:6px;
 }
 
-/* ===== TABLA GRANDE ===== */
+/* BOTONES */
+button{
+background:#2563eb;
+color:white;
+border:none;
+border-radius:6px;
+padding:12px;
+cursor:pointer;
+transition:0.2s;
+}
+
+button:hover{
+background:#1d4ed8;
+}
+
+/* TABLA */
 table{
 width:100%;
 border-collapse:collapse;
@@ -65,52 +90,30 @@ background:#1e293b;
 color:white;
 padding:15px;
 text-align:left;
-font-size:16px;
 }
 
 td{
 padding:14px;
 border-bottom:1px solid #ddd;
-font-size:15px;
 }
 
-/* FILAS HOVER */
 tr:hover{
 background:#f3f4f6;
 }
 
-/* BOTONES */
-button{
-background:#2563eb;
-color:white;
-border:none;
-border-radius:5px;
-}
-
-button:hover{
-background:#1d4ed8;
-}
-
-/* QR MÁS PEQUEÑO */
+/* QR */
 #readerE, #readerS{
 max-width:220px;
 margin-bottom:10px;
 }
-/* ===== LOGIN ===== */
 
+/* LOGIN */
 .login-body{
 display:flex;
 justify-content:center;
 align-items:center;
 height:100vh;
 background:#1e293b;
-}
-
-.login-container{
-width:100%;
-display:flex;
-justify-content:center;
-align-items:center;
 }
 
 .login-box{
@@ -122,36 +125,12 @@ box-shadow:0 4px 10px rgba(0,0,0,0.2);
 text-align:center;
 }
 
-.login-box h2{
-margin-bottom:20px;
-}
-
-.login-box input{
-width:100%;
-padding:12px;
-margin:10px 0;
-border-radius:6px;
-border:1px solid #ccc;
-}
-
-.login-box button{
-width:100%;
-padding:12px;
-background:#2563eb;
-color:white;
-border:none;
-border-radius:6px;
-cursor:pointer;
-}
-
-.login-box button:hover{
-background:#1d4ed8;
-}
+/* FOOTER */
 .footer-app{
 position:fixed;
 bottom:0;
-left:220px; /* mismo ancho del sidebar */
-width:calc(100% - 220px);
+left:200px;
+width:calc(100% - 200px);
 background:#1e293b;
 color:white;
 text-align:center;
@@ -159,12 +138,6 @@ padding:8px;
 font-size:13px;
 }
 
-@media (max-width:768px){
-.footer-app{
-left:0;
-width:100%;
-}
-}
 /* 🔥 BOTÓN MENÚ */
 .menu-btn{
 display:none;
@@ -174,26 +147,42 @@ border:none;
 padding:10px;
 font-size:18px;
 border-radius:6px;
+cursor:pointer;
 }
 
-/* 📱 MODO CELULAR */
+/* 📱 RESPONSIVE */
 @media (max-width:768px){
 
+/* SIDEBAR OCULTO */
 .sidebar{
-position:fixed;
 left:-220px;
-top:0;
-height:100%;
-z-index:1000;
-transition:0.3s;
 }
 
+/* CUANDO SE ABRE */
+.sidebar.active{
+left:0;
+}
+
+/* CONTENIDO COMPLETO */
 .content{
 margin-left:0;
 }
 
+/* FOOTER FULL */
+.footer-app{
+left:0;
+width:100%;
+}
+
+/* MOSTRAR BOTÓN */
 .menu-btn{
 display:block;
 }
 
+/* NAVBAR AJUSTE */
+.navbar{
+display:flex;
+align-items:center;
+gap:10px;
+}
 }
