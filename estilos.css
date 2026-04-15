@@ -1,0 +1,167 @@
+body {
+margin:0;
+font-family:Arial;
+background:#f1f5f9;
+}
+
+/* NAVBAR */
+.navbar{
+background:#1e293b;
+color:white;
+padding:15px;
+display:flex;
+justify-content:space-between;
+}
+
+/* SIDEBAR */
+.sidebar{
+width:200px;
+background:#0f172a;
+height:100vh;
+position:fixed;
+color:white;
+}
+
+.sidebar a{
+display:block;
+padding:15px;
+cursor:pointer;
+}
+
+.sidebar a:hover{
+background:#1e293b;
+}
+
+/* CONTENT */
+.content{
+margin-left:200px;
+padding:20px;
+}
+
+.card{
+background:white;
+padding:25px;
+border-radius:10px;
+}
+
+/* INPUTS */
+input,select,button{
+width:100%;
+padding:12px;
+margin:8px 0;
+font-size:16px;
+}
+
+/* ===== TABLA GRANDE ===== */
+table{
+width:100%;
+border-collapse:collapse;
+margin-top:20px;
+font-size:16px;
+}
+
+th{
+background:#1e293b;
+color:white;
+padding:15px;
+text-align:left;
+font-size:16px;
+}
+
+td{
+padding:14px;
+border-bottom:1px solid #ddd;
+font-size:15px;
+}
+
+/* FILAS HOVER */
+tr:hover{
+background:#f3f4f6;
+}
+
+/* BOTONES */
+button{
+background:#2563eb;
+color:white;
+border:none;
+border-radius:5px;
+}
+
+button:hover{
+background:#1d4ed8;
+}
+
+/* QR MÁS PEQUEÑO */
+#readerE, #readerS{
+max-width:220px;
+margin-bottom:10px;
+}
+/* ===== LOGIN ===== */
+
+.login-body{
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+background:#1e293b;
+}
+
+.login-container{
+width:100%;
+display:flex;
+justify-content:center;
+align-items:center;
+}
+
+.login-box{
+background:white;
+padding:30px;
+border-radius:12px;
+width:300px;
+box-shadow:0 4px 10px rgba(0,0,0,0.2);
+text-align:center;
+}
+
+.login-box h2{
+margin-bottom:20px;
+}
+
+.login-box input{
+width:100%;
+padding:12px;
+margin:10px 0;
+border-radius:6px;
+border:1px solid #ccc;
+}
+
+.login-box button{
+width:100%;
+padding:12px;
+background:#2563eb;
+color:white;
+border:none;
+border-radius:6px;
+cursor:pointer;
+}
+
+.login-box button:hover{
+background:#1d4ed8;
+}
+.footer-app{
+position:fixed;
+bottom:0;
+left:220px; /* mismo ancho del sidebar */
+width:calc(100% - 220px);
+background:#1e293b;
+color:white;
+text-align:center;
+padding:8px;
+font-size:13px;
+}
+
+@media (max-width:768px){
+.footer-app{
+left:0;
+width:100%;
+}
+}

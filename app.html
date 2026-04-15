@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="estilos.css">
+
+<script src="https://unpkg.com/html5-qrcode"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+#readerE,#readerS{max-width:220px;margin-bottom:10px;}
+.toolbar{display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.toolbar button{width:auto}
+.totales{margin:10px 0;font-weight:bold}
+.table-wrap{overflow:auto;max-height:60vh}
+</style>
+</head>
+
+<body onload="initApp()">
+
+<div class="navbar">
+<div>ONE CARIBE</div>
+<div id="userInfo"></div>
+<div onclick="logout()">Cerrar sesión</div>
+</div>
+
+<div class="sidebar">
+<a onclick="mostrar('entradas')">📥 Entradas</a>
+<a onclick="mostrar('salidas')">📤 Salidas</a>
+<a onclick="mostrar('inventario')">📦 Inventario</a>
+<a id="menuConfig" onclick="mostrar('config')">⚙️ Config</a>
+<a id="menuUsuarios" onclick="mostrar('usuarios')">👥 Usuarios</a>
+
+</div>
+
+<div class="content"><div class="card">
+
+<!-- ENTRADAS -->
+<div id="entradas" class="vista">
+<h3>Entradas</h3>
+<div id="readerE"></div>
+
+<select id="productoE"></select>
+<select id="referenciaE"></select>
+<input id="pacasE" type="number" placeholder="Cantidad">
+
+<button onclick="entrada()">Guardar</button>
+
+<div class="table-wrap">
+<table>
+<thead>
+<tr><th>Fecha</th><th>Producto</th><th>Referencia</th><th>Pacas</th><th>Usuario</th></tr>
+</thead>
+<tbody id="tablaEntradas"></tbody>
+</table>
+</div>
+</div>
+
+<!-- SALIDAS -->
+<div id="salidas" class="vista" style="display:none;">
+<h3>Salidas</h3>
+<div id="readerS"></div>
+
+<select id="productoS"></select>
+<select id="referenciaS"></select>
+<input id="pacasS" type="number" placeholder="Cantidad">
+
+<button onclick="salida()">Guardar</button>
+
+<div class="table-wrap">
+<table>
+<thead>
+<tr><th>Fecha</th><th>Producto</th><th>Referencia</th><th>Pacas</th><th>Usuario</th></tr>
+</thead>
+<tbody id="tablaSalidas"></tbody>
+</table>
+</div>
+</div>
+
+<!-- INVENTARIO -->
+<div id="inventario" class="vista" style="display:none;">
+<h3>Inventario</h3>
+
+<div class="toolbar">
+<button onclick="descargarInventario()">📥 Descargar</button>
+<button onclick="imprimirInventario()">🖨 Imprimir</button>
+</div>
+
+<div class="totales" id="totales"></div>
+
+<div class="table-wrap">
+<table id="tablaPrint">
+<thead>
+<tr>
+<th>Producto</th>
+<th>Referencia</th>
+<th>Pacas</th>
+<th>Estibas</th>
+</tr>
+</thead>
+<tbody id="tablaInventario"></tbody>
+</table>
+</div>
+</div>
+
+<!-- CONFIG -->
+<div id="config" class="vista" style="display:none;">
+<h3>Config Estibas</h3>
+<table><tbody id="tablaConfig"></tbody></table>
+
+<hr>
+
+<h4>Zona Admin (requiere clave)</h4>
+<input id="claveAdmin" placeholder="Clave admin" type="password">
+
+<button onclick="limpiar('entradas')">🗑 Borrar Entradas</button>
+<button onclick="limpiar('salidas')">🗑 Borrar Salidas</button>
+<button onclick="limpiar('inventario')">🗑 Reiniciar Inventario</button>
+</div>
+
+<!-- USUARIOS -->
+<div id="usuarios" class="vista" style="display:none;">
+<h3>Usuarios</h3>
+
+<input id="userN" placeholder="Usuario">
+<input id="passN" placeholder="Clave">
+
+<select id="rolN">
+<option>Admin</option>
+<option>Supervisor</option>
+<option>Operador</option>
+</select>
+
+<button onclick="crearUsuario()">Crear</button>
+
+<table>
+<thead>
+<tr><th>Usuario</th><th>Clave</th><th>Rol</th><th></th></tr>
+</thead>
+<tbody id="tablaUsuarios"></tbody>
+</table>
+</div>
+
+</div></div>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+
+<div class="footer-app">
+© 2026 ONE CARIBE | Autor: <b>Otsler Suarez</b>
+</div>
+</body>
+</html>

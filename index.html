@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+
+body{
+font-family:Arial;
+background:#1e293b;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+}
+
+.box{
+background:white;
+padding:30px;
+border-radius:10px;
+width:300px;
+}
+
+input{
+width:100%;
+padding:10px;
+margin:10px 0;
+}
+
+button{
+width:100%;
+padding:10px;
+background:#2563eb;
+color:white;
+border:none;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="box">
+<h2>ONE CARIBE</h2>
+
+<input id="usuario" placeholder="Usuario">
+<input id="clave" type="password" placeholder="Clave">
+
+<button onclick="login()">Ingresar</button>
+</div>
+
+<script>
+
+// 🔥 LOGIN SEGURO (SIEMPRE CREA ADMIN)
+function login(){
+
+let u = usuario.value.trim();
+let c = clave.value.trim();
+
+if(!u || !c){
+alert("Ingrese datos");
+return;
+}
+
+let users = JSON.parse(localStorage.getItem("usuarios"));
+
+// 🔥 SI NO EXISTEN → CREAR ADMIN
+if(!users || users.length === 0){
+users = [{usuario:"admin",clave:"123",rol:"Admin"}];
+localStorage.setItem("usuarios", JSON.stringify(users));
+}
+
+// 🔥 BUSCAR
+let user = users.find(x=>x.usuario===u && x.clave===c);
+
+if(user){
+localStorage.setItem("usuario", user.usuario);
+localStorage.setItem("rol", user.rol);
+window.location.href="app.html";
+}else{
+alert("Credenciales incorrectas");
+}
+
+}
+
+</script>
+
+</body>
+</html>
