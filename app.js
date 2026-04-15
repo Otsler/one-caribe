@@ -348,3 +348,12 @@ if(admin) return true;
 alert("Clave incorrecta");
 return false;
 }
+// ================= LOGOUT =================
+function logout(){
+
+localStorage.removeItem("usuario");
+localStorage.removeItem("rol");
+
+location.href="index.html";
+
+}
