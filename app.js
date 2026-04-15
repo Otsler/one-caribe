@@ -132,33 +132,19 @@ alert("Ingrese cantidad");
 return;
 }
 
-let ent=JSON.parse(localStorage.getItem("entradas"))||[];
-let inv=JSON.parse(localStorage.getItem("inventario"))||[];
-
-ent.push({
-fecha:new Date().toLocaleString(),
-producto:p,
-referencia:r,
-pacas:pac,
-usuario:localStorage.getItem("usuario")
+// 🔥 GUARDAR EN FIREBASE
+db.collection("entradas").add({
+fecha: new Date().toLocaleString(),
+producto: p,
+referencia: r,
+pacas: pac,
+usuario: localStorage.getItem("usuario")
 });
-
-let item=inv.find(x=>x.producto==p && x.referencia==r);
-
-if(item) item.pacas+=pac;
-else inv.push({producto:p,referencia:r,pacas:pac});
-
-localStorage.setItem("entradas",JSON.stringify(ent));
-localStorage.setItem("inventario",JSON.stringify(inv));
 
 pacasE.value="";
 
-verEntradas();
-verInventario();
-
 alert("Entrada registrada");
 }
-
 // ================= SALIDAS =================
 function salida(){
 
