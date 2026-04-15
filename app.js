@@ -36,19 +36,13 @@ localStorage.getItem("usuario");
 // ================= UI =================
 function mostrar(id){
 
-// 🔐 VALIDAR ROL
 if(!puedeAcceder(id)){
-alert("❌ No tienes permiso para entrar aquí");
+alert("❌ No tienes permiso");
 return;
 }
 
-// 🔐 SI ES CONFIG O USUARIOS → PEDIR CLAVE
-if(id === "config" || id === "usuarios"){
-
-if(!pedirClaveAdmin()){
-return;
-}
-
+if(id==="config" || id==="usuarios"){
+if(!pedirClaveAdmin()) return;
 }
 
 document.querySelectorAll(".vista").forEach(v=>v.style.display="none");
@@ -59,6 +53,7 @@ detenerQR();
 if(id==="entradas") iniciarQRE();
 if(id==="salidas") iniciarQRS();
 }
+
 // ================= SELECTS =================
 function cargarSelects(){
 llenar("productoE","referenciaE");
@@ -83,43 +78,7 @@ ref.innerHTML+=`<option>${y}</option>`;
 
 prod.onchange();
 }
-// ================= REPORTES SELECTS =================
-function cargarReportesSelects(){
 
-let prod = document.getElementById("prodR");
-let ref = document.getElementById("refR");
-
-if(!prod || !ref) return;
-
-// limpiar
-prod.innerHTML = "<option value=''>Todos los productos</option>";
-ref.innerHTML = "<option value=''>Todas las referencias</option>";
-
-// llenar productos
-catalogo.productos.forEach(p=>{
-let opt = document.createElement("option");
-opt.value = p;
-opt.text = p;
-prod.appendChild(opt);
-});
-
-// cuando cambia producto
-prod.onchange = ()=>{
-
-ref.innerHTML = "<option value=''>Todas las referencias</option>";
-
-if(!catalogo.referencias[prod.value]) return;
-
-catalogo.referencias[prod.value].forEach(r=>{
-let opt = document.createElement("option");
-opt.value = r;
-opt.text = r;
-ref.appendChild(opt);
-});
-
-};
-
-}
 // ================= ENTRADAS =================
 function entrada(){
 
@@ -127,75 +86,57 @@ let p=productoE.value;
 let r=referenciaE.value;
 let pac=parseInt(pacasE.value);
 
-if(!pac){
-alert("Ingrese cantidad");
-return;
-}
+if(!pac) return alert("Ingrese cantidad");
 
-// 🔥 GUARDAR EN FIREBASE
 db.collection("entradas").add({
-fecha: new Date().toLocaleString(),
-producto: p,
-referencia: r,
-pacas: pac,
-usuario: localStorage.getItem("usuario")
+fecha:new Date().toLocaleString(),
+producto:p,
+referencia:r,
+pacas:pac,
+usuario:localStorage.getItem("usuario")
 });
 
-// 🔥 ACTUALIZAR INVENTARIO (AQUÍ VA)
 actualizarInventario(p,r,pac);
 
 pacasE.value="";
-
 alert("Entrada registrada");
 }
+
 // ================= SALIDAS =================
 function salida(){
 
-let p = productoS.value;
-let r = referenciaS.value;
-let pac = parseInt(pacasS.value);
+let p=productoS.value;
+let r=referenciaS.value;
+let pac=parseInt(pacasS.value);
 
-if(!pac){
-alert("Ingrese cantidad");
-return;
-}
+if(!pac) return alert("Ingrese cantidad");
 
-// 🔥 validar inventario en nube
 db.collection("inventario")
 .where("producto","==",p)
 .where("referencia","==",r)
 .get()
-.then(snapshot=>{
+.then(snap=>{
 
-if(snapshot.empty){
-alert("Sin inventario");
-return;
-}
+if(snap.empty) return alert("Sin inventario");
 
-let doc = snapshot.docs[0];
-let data = doc.data();
+let doc=snap.docs[0];
+let data=doc.data();
 
-if(data.pacas < pac){
-alert("No hay suficiente inventario");
-return;
-}
+if(data.pacas<pac) return alert("No hay suficiente");
 
-// 🔥 guardar salida
 db.collection("salidas").add({
-fecha: new Date().toLocaleString(),
-producto: p,
-referencia: r,
-pacas: pac,
-usuario: localStorage.getItem("usuario")
+fecha:new Date().toLocaleString(),
+producto:p,
+referencia:r,
+pacas:pac,
+usuario:localStorage.getItem("usuario")
 });
 
-// 🔥 descontar inventario
 db.collection("inventario").doc(doc.id).update({
-pacas: data.pacas - pac
+pacas:data.pacas-pac
 });
 
 pacasS.value="";
-
 alert("Salida registrada");
 
 });
@@ -203,17 +144,11 @@ alert("Salida registrada");
 
 // ================= TABLAS =================
 function verEntradas(){
-
-db.collection("entradas")
-.orderBy("fecha","desc")
-.onSnapshot(snapshot=>{
-
+db.collection("entradas").orderBy("fecha","desc")
+.onSnapshot(snap=>{
 tablaEntradas.innerHTML="";
-
-snapshot.forEach(doc=>{
-
-let x = doc.data();
-
+snap.forEach(doc=>{
+let x=doc.data();
 tablaEntradas.innerHTML+=`
 <tr>
 <td>${x.fecha}</td>
@@ -221,25 +156,17 @@ tablaEntradas.innerHTML+=`
 <td>${x.referencia}</td>
 <td>${x.pacas}</td>
 <td>${x.usuario}</td>
-</tr>
-`;
-
+</tr>`;
 });
-
 });
 }
 
 function verSalidas(){
-
-db.collection("salidas")
-.orderBy("fecha","desc")
-.onSnapshot(snapshot=>{
-
+db.collection("salidas").orderBy("fecha","desc")
+.onSnapshot(snap=>{
 tablaSalidas.innerHTML="";
-
-snapshot.forEach(doc=>{
-let x = doc.data();
-
+snap.forEach(doc=>{
+let x=doc.data();
 tablaSalidas.innerHTML+=`
 <tr>
 <td>${x.fecha}</td>
@@ -247,59 +174,53 @@ tablaSalidas.innerHTML+=`
 <td>${x.referencia}</td>
 <td>${x.pacas}</td>
 <td>${x.usuario}</td>
-</tr>
-`;
-
+</tr>`;
 });
-
 });
 }
 
 // ================= INVENTARIO =================
-function getEstibas(p,r,pac){
-
-let conf=JSON.parse(localStorage.getItem("estibas"))||[];
-
-let c=conf.find(x=>x.producto==p && x.referencia==r);
-
-// 🔥 SI NO ESTÁ CONFIGURADO → NO CALCULA
-if(!c || !c.pacas || c.pacas<=0){
-return 0;
-}
-
-// 🔥 SOLO CALCULA SI EXISTE CONFIG
-return (pac / c.pacas).toFixed(2);
+function getEstibas(p,r,pac,config){
+let c=config.find(x=>x.producto==p && x.referencia==r);
+if(!c) return 0;
+return (pac/c.pacas).toFixed(2);
 }
 
 function verInventario(){
 
-db.collection("inventario")
-.onSnapshot(snapshot=>{
+db.collection("estibas").get().then(confSnap=>{
+
+let config=[];
+confSnap.forEach(d=>config.push(d.data()));
+
+db.collection("inventario").onSnapshot(snap=>{
 
 tablaInventario.innerHTML="";
 
-snapshot.forEach(doc=>{
-
-let x = doc.data();
+snap.forEach(doc=>{
+let x=doc.data();
 
 tablaInventario.innerHTML+=`
 <tr>
 <td>${x.producto}</td>
 <td>${x.referencia}</td>
 <td>${x.pacas}</td>
-<td>${(x.pacas/42).toFixed(2)}</td>
-</tr>
-`;
+<td>${getEstibas(x.producto,x.referencia,x.pacas,config)}</td>
+</tr>`;
+});
 
 });
 
 });
 }
 
-// ================= CONFIG (ARREGLADO) =================
+// ================= CONFIG =================
 function cargarConfig(){
 
-let conf=JSON.parse(localStorage.getItem("estibas"))||[];
+db.collection("estibas").onSnapshot(snap=>{
+
+let conf=[];
+snap.forEach(d=>conf.push(d.data()));
 
 let html="";
 
@@ -312,525 +233,154 @@ html+=`
 <tr>
 <td>${p}</td>
 <td>${r}</td>
-<td>
-<input type="number" id="c-${p}-${r}" value="${item?item.pacas:''}">
-</td>
-<td>
-<button onclick="guardarFila('${p}','${r}')">Guardar</button>
-</td>
-</tr>
-`;
+<td><input id="c-${p}-${r}" value="${item?item.pacas:''}"></td>
+<td><button onclick="guardarFila('${p}','${r}')">Guardar</button></td>
+</tr>`;
 
 });
 });
 
 tablaConfig.innerHTML=html;
+
+});
 }
 
 function guardarFila(p,r){
 
-let val = parseInt(document.getElementById(`c-${p}-${r}`).value);
-
-if(!val){
-alert("Ingrese valor");
-return;
-}
+let val=parseInt(document.getElementById(`c-${p}-${r}`).value);
+if(!val) return alert("Ingrese valor");
 
 db.collection("estibas")
 .where("producto","==",p)
 .where("referencia","==",r)
 .get()
-.then(snapshot=>{
+.then(snap=>{
 
-if(snapshot.empty){
-
-db.collection("estibas").add({
-producto:p,
-referencia:r,
-pacas:val
-});
-
+if(snap.empty){
+db.collection("estibas").add({producto:p,referencia:r,pacas:val});
 }else{
-
-let doc = snapshot.docs[0];
-
-db.collection("estibas").doc(doc.id).update({
-pacas:val
-});
-
+let doc=snap.docs[0];
+db.collection("estibas").doc(doc.id).update({pacas:val});
 }
 
 });
 
 alert("Guardado");
 }
-// ================= DESCARGAR =================
-function descargarInventario(){
 
-let data = JSON.parse(localStorage.getItem("inventario")) || [];
-
-let fecha = new Date().toLocaleString();
-
-let html = `
-<table border="1">
-<tr>
-<th colspan="4" style="font-size:20px;">Inventario ONE CARIBE</th>
-</tr>
-
-<tr>
-<td colspan="4">Fecha: ${fecha}</td>
-</tr>
-
-<tr style="background:#1e293b;color:white;">
-<th>Producto</th>
-<th>Referencia</th>
-<th>Pacas</th>
-<th>Estibas</th>
-</tr>
-`;
-
-data.forEach(x=>{
-html += `
-<tr>
-<td>${x.producto}</td>
-<td>${x.referencia}</td>
-<td>${x.pacas}</td>
-<td>${(x.pacas/42).toFixed(2)}</td>
-</tr>
-`;
-});
-
-html += "</table>";
-
-let blob = new Blob([html], { type: "application/vnd.ms-excel" });
-
-let a = document.createElement("a");
-a.href = URL.createObjectURL(blob);
-a.download = "Inventario_ONE_CARIBE.xls";
-a.click();
-}
-
-// ================= IMPRIMIR =================
-function imprimirInventario(){
-
-let data = JSON.parse(localStorage.getItem("inventario")) || [];
-
-let fecha = new Date().toLocaleString();
-
-let filas = "";
-
-data.forEach(x=>{
-filas += `
-<tr>
-<td>${x.producto}</td>
-<td>${x.referencia}</td>
-<td>${x.pacas}</td>
-<td>${(x.pacas/42).toFixed(2)}</td>
-</tr>
-`;
-});
-
-let contenido = `
-<html>
-<head>
-<title>Inventario ONE CARIBE</title>
-
-<style>
-body{
-font-family: Arial;
-padding:30px;
-color:#111;
-}
-
-.header{
-display:flex;
-justify-content:space-between;
-margin-bottom:20px;
-}
-
-.titulo{
-font-size:22px;
-font-weight:bold;
-}
-
-.sub{
-font-size:12px;
-color:#555;
-}
-
-table{
-width:100%;
-border-collapse:collapse;
-margin-top:20px;
-}
-
-th{
-background:#1e293b;
-color:white;
-padding:10px;
-text-align:left;
-}
-
-td{
-padding:10px;
-border-bottom:1px solid #ddd;
-}
-
-.footer{
-margin-top:30px;
-font-size:12px;
-text-align:center;
-color:#555;
-}
-</style>
-
-</head>
-
-<body>
-
-<div class="header">
-<div>
-<div class="titulo">ONE CARIBE</div>
-<div class="sub">Reporte de Inventario</div>
-</div>
-
-<div class="sub">
-${fecha}
-</div>
-</div>
-
-<table>
-<thead>
-<tr>
-<th>Producto</th>
-<th>Referencia</th>
-<th>Pacas</th>
-<th>Estibas</th>
-</tr>
-</thead>
-
-<tbody>
-${filas}
-</tbody>
-</table>
-
-<div class="footer">
-© 2026 ONE CARIBE | Autor: Otsler Suarez
-</div>
-
-</body>
-</html>
-`;
-
-let w = window.open("");
-w.document.write(contenido);
-w.document.close();
-w.print();
-}
-// ================= REPORTES =================
-function reporte(){
-
-let entradas = JSON.parse(localStorage.getItem("entradas")) || [];
-let salidas = JSON.parse(localStorage.getItem("salidas")) || [];
-
-let f1 = document.getElementById("fInicio").value;
-let f2 = document.getElementById("fFin").value;
-let prod = document.getElementById("prodR").value;
-let ref = document.getElementById("refR").value;
-
-// 🔥 FILTRO
-function filtrar(data){
-
-return data.filter(x=>{
-
-let fecha = x.fecha.split(",")[0];
-
-if(f1 && fecha < f1) return false;
-if(f2 && fecha > f2) return false;
-
-if(prod && x.producto !== prod) return false;
-if(ref && x.referencia !== ref) return false;
-
-return true;
-
-});
-}
-
-// 🔥 AGRUPAR POR DÍA
-function agrupar(data){
-
-let map = {};
-
-data.forEach(x=>{
-let d = x.fecha.split(",")[0];
-map[d] = (map[d] || 0) + x.pacas;
-});
-
-return map;
-}
-
-let ent = agrupar(filtrar(entradas));
-let sal = agrupar(filtrar(salidas));
-
-// 🔥 UNIR FECHAS
-let dias = Array.from(new Set([
-...Object.keys(ent),
-...Object.keys(sal)
-])).sort();
-
-let dataEnt = dias.map(d=>ent[d] || 0);
-let dataSal = dias.map(d=>sal[d] || 0);
-
-// 🔥 LIMPIAR GRÁFICO ANTERIOR
-if(window.chart) window.chart.destroy();
-
-// 🔥 CREAR GRÁFICO
-window.chart = new Chart(document.getElementById("grafico"),{
-
-type:'bar',
-
-data:{
-labels: dias,
-datasets:[
-{
-label:"Entradas",
-data: dataEnt,
-backgroundColor:"#22c55e"
-},
-{
-label:"Salidas",
-data: dataSal,
-backgroundColor:"#ef4444"
-}
-]
-},
-
-options:{
-responsive:true,
-plugins:{
-legend:{position:"top"}
-}
-}
-
-});
-}
-
-// ================= LOGOUT =================
-function logout(){
-localStorage.removeItem("usuario");
-localStorage.removeItem("rol");
-location.href="index.html";
-}
-// ================= LIMPIAR DATOS =================
+// ================= LIMPIAR =================
 function limpiar(tipo){
 
-let clave = document.getElementById("claveAdmin").value;
+let clave=document.getElementById("claveAdmin").value;
 
-// 🔐 VALIDAR ADMIN (sigue usando local por ahora)
-let usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+let usuarios=JSON.parse(localStorage.getItem("usuarios"))||[];
+let admin=usuarios.find(x=>x.rol==="Admin" && x.clave===clave);
 
-let admin = usuarios.find(x=>x.rol==="Admin" && x.clave===clave);
+if(!admin) return alert("Clave incorrecta");
+if(!confirm("¿Eliminar datos?")) return;
 
-if(!admin){
-alert("❌ Clave de administrador incorrecta");
-return;
-}
-
-// ⚠️ CONFIRMAR
-if(!confirm("¿Seguro que deseas eliminar esta información?")) return;
-
-// 🔥 ELIMINAR EN FIREBASE
-db.collection(tipo).get().then(snapshot=>{
-
-let total = snapshot.size;
-
-if(total === 0){
-alert("No hay datos para eliminar");
-return;
-}
-
-let contador = 0;
-
-snapshot.forEach(doc=>{
-
-db.collection(tipo).doc(doc.id).delete()
-.then(()=>{
-contador++;
-
-if(contador === total){
-
-// 🔄 refrescar tablas
-if(tipo==="entradas") verEntradas();
-if(tipo==="salidas") verSalidas();
-if(tipo==="inventario") verInventario();
-
-alert("✅ Datos eliminados correctamente");
-
-document.getElementById("claveAdmin").value="";
-}
-
+db.collection(tipo).get().then(snap=>{
+snap.forEach(doc=>{
+db.collection(tipo).doc(doc.id).delete();
+});
 });
 
-});
-
-});
-
+alert("Eliminado");
 }
-// ================= USUARIOS PRO =================
 
-// CREAR USUARIO
+// ================= USUARIOS =================
 function crearUsuario(){
 
-let u = userN.value.trim();
-let c = passN.value.trim();
-let rol = rolN.value;
+let u=userN.value.trim();
+let c=passN.value.trim();
+let rol=rolN.value;
 
-if(!u || !c){
-alert("Complete campos");
-return;
-}
+if(!u||!c) return alert("Complete campos");
 
-db.collection("usuarios").add({
-usuario:u,
-clave:c,
-rol:rol
-});
-
-alert("Usuario creado");
+db.collection("usuarios").add({usuario:u,clave:c,rol:rol});
 
 userN.value="";
 passN.value="";
+alert("Usuario creado");
 }
-// MOSTRAR USUARIOS
+
 function verUsuarios(){
 
-db.collection("usuarios")
-.onSnapshot(snapshot=>{
+db.collection("usuarios").onSnapshot(snap=>{
 
 tablaUsuarios.innerHTML="";
 
-snapshot.forEach(doc=>{
-
-let u = doc.data();
+snap.forEach(doc=>{
+let u=doc.data();
 
 tablaUsuarios.innerHTML+=`
 <tr>
 <td>${u.usuario}</td>
 <td>${u.clave}</td>
 <td>${u.rol}</td>
-<td>
-<button onclick="eliminarUsuario('${doc.id}')">🗑</button>
-</td>
-</tr>
-`;
+<td><button onclick="eliminarUsuario('${doc.id}')">🗑</button></td>
+</tr>`;
 
 });
 
 });
 }
-// EDITAR CONTRASEÑA
-function guardarUsuario(i){
 
-let lista = JSON.parse(localStorage.getItem("usuarios"));
-
-let nueva = document.getElementById(`pass-${i}`).value.trim();
-
-if(!nueva){
-alert("Ingrese contraseña válida");
-return;
-}
-
-lista[i].clave = nueva;
-
-localStorage.setItem("usuarios", JSON.stringify(lista));
-
-alert("✅ Contraseña actualizada");
-
-verUsuarios();
-}
-
-// ELIMINAR
 function eliminarUsuario(id){
-
 if(!confirm("¿Eliminar usuario?")) return;
-
-// 🔥 eliminar en firebase
-db.collection("usuarios").doc(id).delete()
-.then(()=>{
-alert("Usuario eliminado");
-verUsuarios();
-});
-
+db.collection("usuarios").doc(id).delete();
 }
-// ================= CONTROL DE ACCESO =================
+
+// ================= ACCESO =================
 function puedeAcceder(id){
 
-let rol = localStorage.getItem("rol");
+let rol=localStorage.getItem("rol");
 
-// ADMIN → todo
-if(rol === "Admin") return true;
+if(rol==="Admin") return true;
 
-// SUPERVISOR
-if(rol === "Supervisor"){
-if(id === "config" || id === "usuarios"){
-return false;
-}
-return true;
+if(rol==="Supervisor"){
+return id!=="config" && id!=="usuarios";
 }
 
-// OPERADOR
-if(rol === "Operador"){
-if(id === "entradas" || id === "salidas"){
-return true;
-}
-return false;
+if(rol==="Operador"){
+return id==="entradas"||id==="salidas";
 }
 
 return false;
 }
+
 function pedirClaveAdmin(){
 
-let clave = prompt("Ingrese clave de administrador:");
-
+let clave=prompt("Clave admin:");
 if(!clave) return false;
 
-let usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+let usuarios=JSON.parse(localStorage.getItem("usuarios"))||[];
 
-let admin = usuarios.find(x=>x.rol==="Admin" && x.clave===clave);
+let admin=usuarios.find(x=>x.rol==="Admin" && x.clave===clave);
 
-if(admin){
-return true;
-}else{
-alert("❌ Clave incorrecta");
+if(admin) return true;
+
+alert("Clave incorrecta");
 return false;
 }
 
-}
+// ================= INVENTARIO CORE =================
 function actualizarInventario(p,r,pac){
 
 db.collection("inventario")
 .where("producto","==",p)
 .where("referencia","==",r)
 .get()
-.then(snapshot=>{
+.then(snap=>{
 
-if(snapshot.empty){
-
-db.collection("inventario").add({
-producto:p,
-referencia:r,
-pacas:pac
-});
-
+if(snap.empty){
+db.collection("inventario").add({producto:p,referencia:r,pacas:pac});
 }else{
-
-let doc = snapshot.docs[0];
-let data = doc.data();
-
+let doc=snap.docs[0];
+let data=doc.data();
 db.collection("inventario").doc(doc.id).update({
-pacas: data.pacas + pac
+pacas:data.pacas+pac
 });
-
 }
 
 });
