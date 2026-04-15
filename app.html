@@ -13,27 +13,70 @@
 .toolbar button{width:auto}
 .totales{margin:10px 0;font-weight:bold}
 .table-wrap{overflow:auto;max-height:60vh}
+
+/* 🔥 BOTÓN MENÚ */
+.menu-btn{
+display:none;
+background:#2563eb;
+color:white;
+border:none;
+padding:10px;
+font-size:18px;
+border-radius:6px;
+}
+
+/* 📱 RESPONSIVE */
+@media (max-width:768px){
+
+.sidebar{
+position:fixed;
+left:-220px;
+top:0;
+height:100%;
+z-index:1000;
+transition:0.3s;
+}
+
+.content{
+margin-left:0;
+}
+
+.menu-btn{
+display:block;
+}
+
+}
 </style>
 </head>
 
 <body onload="initApp()">
 
+<!-- NAVBAR -->
 <div class="navbar">
+
+<!-- 🔥 BOTÓN MÓVIL -->
+<button class="menu-btn" onclick="toggleMenu()">☰</button>
+
 <div>ONE CARIBE</div>
+
 <div id="userInfo"></div>
-<div onclick="logout()">Cerrar sesión</div>
+
+<div onclick="logout()" style="cursor:pointer;">Cerrar sesión</div>
+
 </div>
 
+<!-- SIDEBAR -->
 <div class="sidebar">
 <a onclick="mostrar('entradas')">📥 Entradas</a>
 <a onclick="mostrar('salidas')">📤 Salidas</a>
 <a onclick="mostrar('inventario')">📦 Inventario</a>
 <a id="menuConfig" onclick="mostrar('config')">⚙️ Config</a>
 <a id="menuUsuarios" onclick="mostrar('usuarios')">👥 Usuarios</a>
-
 </div>
 
-<div class="content"><div class="card">
+<!-- CONTENT -->
+<div class="content">
+<div class="card">
 
 <!-- ENTRADAS -->
 <div id="entradas" class="vista">
@@ -141,12 +184,12 @@
 </table>
 </div>
 
-</div></div>
+</div>
+</div>
 
+<!-- 🔥 SCRIPTS CORRECTOS -->
 <script src="data.js"></script>
-  <script src="data.js"></script>
 
-<!-- 🔥 FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
@@ -164,12 +207,12 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 </script>
 
-<!-- TU APP -->
-<script src="app.js"></script>
 <script src="app.js"></script>
 
+<!-- FOOTER -->
 <div class="footer-app">
 © 2026 ONE CARIBE | Autor: <b>Otsler Suarez</b>
 </div>
+
 </body>
 </html>
