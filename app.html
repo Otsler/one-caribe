@@ -1,5 +1,20 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- 🔥 ESTILOS PRINCIPALES -->
+<link rel="stylesheet" href="estilos.css">
+
+<!-- PWA -->
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#1e293b">
+
+<!-- LIBRERÍAS -->
+<script src="https://unpkg.com/html5-qrcode"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <style>
 #readerE,#readerS{max-width:220px;margin-bottom:10px;}
 .toolbar{display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap}
@@ -30,6 +45,10 @@ z-index:1000;
 transition:0.3s;
 }
 
+.sidebar.active{
+left:0;
+}
+
 .content{
 margin-left:0;
 }
@@ -38,8 +57,14 @@ margin-left:0;
 display:block;
 }
 
+.navbar{
+display:flex;
+align-items:center;
+gap:10px;
+}
 }
 </style>
+
 </head>
 
 <body onload="initApp()">
@@ -47,10 +72,9 @@ display:block;
 <!-- NAVBAR -->
 <div class="navbar">
 
-<!-- 🔥 BOTÓN MÓVIL -->
 <button class="menu-btn" onclick="toggleMenu()">☰</button>
 
-<div>ONE CARIBE</div>
+<div><b>ONE CARIBE</b></div>
 
 <div id="userInfo"></div>
 
@@ -59,12 +83,12 @@ display:block;
 </div>
 
 <!-- SIDEBAR -->
-<div class="sidebar">
+<div class="sidebar" id="sidebar">
 <a onclick="mostrar('entradas')">📥 Entradas</a>
 <a onclick="mostrar('salidas')">📤 Salidas</a>
 <a onclick="mostrar('inventario')">📦 Inventario</a>
-<a id="menuConfig" onclick="mostrar('config')">⚙️ Config</a>
-<a id="menuUsuarios" onclick="mostrar('usuarios')">👥 Usuarios</a>
+<a onclick="mostrar('config')">⚙️ Config</a>
+<a onclick="mostrar('usuarios')">👥 Usuarios</a>
 </div>
 
 <!-- CONTENT -->
@@ -125,7 +149,7 @@ display:block;
 <div class="totales" id="totales"></div>
 
 <div class="table-wrap">
-<table id="tablaPrint">
+<table>
 <thead>
 <tr>
 <th>Producto</th>
@@ -146,12 +170,11 @@ display:block;
 
 <hr>
 
-<h4>Zona Admin (requiere clave)</h4>
 <input id="claveAdmin" placeholder="Clave admin" type="password">
 
-<button onclick="limpiar('entradas')">🗑 Borrar Entradas</button>
-<button onclick="limpiar('salidas')">🗑 Borrar Salidas</button>
-<button onclick="limpiar('inventario')">🗑 Reiniciar Inventario</button>
+<button onclick="limpiar('entradas')">🗑 Entradas</button>
+<button onclick="limpiar('salidas')">🗑 Salidas</button>
+<button onclick="limpiar('inventario')">🗑 Inventario</button>
 </div>
 
 <!-- USUARIOS -->
@@ -180,27 +203,30 @@ display:block;
 </div>
 </div>
 
-<!-- 🔥 SCRIPTS CORRECTOS -->
-<script src="data.js"></script>
-
+<!-- 🔥 FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
 <script>
 const firebaseConfig = {
-apiKey: "AIzaSyDLI4OxJcXE-BQgNBUwza7Nr1rRvoqHhTU",
+apiKey: "AIzaSy...",
 authDomain: "one-caribe.firebaseapp.com",
-projectId: "one-caribe",
-storageBucket: "one-caribe.firebasestorage.app",
-messagingSenderId: "656393226626",
-appId: "1:656393226626:web:abcceafeb5e7a15d1b679b"
+projectId: "one-caribe"
 };
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 </script>
 
+<script src="data.js"></script>
 <script src="app.js"></script>
+
+<!-- 🔥 MENU MOBILE -->
+<script>
+function toggleMenu(){
+document.getElementById("sidebar").classList.toggle("active");
+}
+</script>
 
 <!-- FOOTER -->
 <div class="footer-app">
