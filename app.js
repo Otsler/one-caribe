@@ -348,19 +348,3 @@ if(admin) return true;
 alert("Clave incorrecta");
 return false;
 }
-function toggleMenu(){
-
-let sidebar = document.querySelector(".sidebar");
-
-if(sidebar.style.left === "0px"){
-sidebar.style.left = "-220px";
-}else{
-sidebar.style.left = "0px";
-}
-
-}
-if ('serviceWorker' in navigator) {
-navigator.serviceWorker.register('service-worker.js')
-.then(()=> console.log("Service Worker activo"))
-.catch(err=> console.log("Error SW:", err));
-}
