@@ -1,6 +1,5 @@
 // ================= INIT =================
 function initApp(){
-initUsuarios();
 checkAuth();
 cargarSelects();
 verEntradas();
@@ -13,15 +12,6 @@ setUserInfo();
 }
 
 // ================= LOGIN =================
-function initUsuarios(){
-let u=JSON.parse(localStorage.getItem("usuarios"));
-if(!u){
-localStorage.setItem("usuarios",JSON.stringify([
-{usuario:"admin",clave:"123",rol:"Admin"}
-]));
-}
-}
-
 function checkAuth(){
 if(!localStorage.getItem("usuario")){
 location.href="index.html";
@@ -29,8 +19,7 @@ location.href="index.html";
 }
 
 function setUserInfo(){
-document.getElementById("userInfo").innerText=
-localStorage.getItem("usuario");
+userInfo.innerText = localStorage.getItem("usuario");
 }
 
 // ================= UI =================
@@ -47,11 +36,6 @@ if(!pedirClaveAdmin()) return;
 
 document.querySelectorAll(".vista").forEach(v=>v.style.display="none");
 document.getElementById(id).style.display="block";
-
-detenerQR();
-
-if(id==="entradas") iniciarQRE();
-if(id==="salidas") iniciarQRS();
 }
 
 // ================= SELECTS =================
@@ -111,15 +95,13 @@ let pac=parseInt(pacasS.value);
 
 if(!pac) return alert("Ingrese cantidad");
 
-db.collection("inventario")
-.where("producto","==",p)
-.where("referencia","==",r)
-.get()
-.then(snap=>{
+let clave = p+"_"+r;
 
-if(snap.empty) return alert("Sin inventario");
+db.collection("inventario").doc(clave).get()
+.then(doc=>{
 
-let doc=snap.docs[0];
+if(!doc.exists) return alert("Sin inventario");
+
 let data=doc.data();
 
 if(data.pacas<pac) return alert("No hay suficiente");
@@ -132,7 +114,7 @@ pacas:pac,
 usuario:localStorage.getItem("usuario")
 });
 
-db.collection("inventario").doc(doc.id).update({
+db.collection("inventario").doc(clave).update({
 pacas:data.pacas-pac
 });
 
@@ -144,6 +126,7 @@ alert("Salida registrada");
 
 // ================= TABLAS =================
 function verEntradas(){
+
 db.collection("entradas").orderBy("fecha","desc")
 .onSnapshot(snap=>{
 tablaEntradas.innerHTML="";
@@ -162,6 +145,7 @@ tablaEntradas.innerHTML+=`
 }
 
 function verSalidas(){
+
 db.collection("salidas").orderBy("fecha","desc")
 .onSnapshot(snap=>{
 tablaSalidas.innerHTML="";
@@ -180,18 +164,35 @@ tablaSalidas.innerHTML+=`
 }
 
 // ================= INVENTARIO =================
-function getEstibas(p,r,pac,config){
-let c=config.find(x=>x.producto==p && x.referencia==r);
-if(!c) return 0;
-return (pac/c.pacas).toFixed(2);
+function actualizarInventario(p,r,pac){
+
+let clave = p+"_"+r;
+
+db.collection("inventario").doc(clave).get()
+.then(doc=>{
+
+if(!doc.exists){
+
+db.collection("inventario").doc(clave).set({
+producto:p,
+referencia:r,
+pacas:pac
+});
+
+}else{
+
+let data=doc.data();
+
+db.collection("inventario").doc(clave).update({
+pacas:data.pacas+pac
+});
+
+}
+
+});
 }
 
 function verInventario(){
-
-db.collection("estibas").get().then(confSnap=>{
-
-let config=[];
-confSnap.forEach(d=>config.push(d.data()));
 
 db.collection("inventario").onSnapshot(snap=>{
 
@@ -205,10 +206,8 @@ tablaInventario.innerHTML+=`
 <td>${x.producto}</td>
 <td>${x.referencia}</td>
 <td>${x.pacas}</td>
-<td>${getEstibas(x.producto,x.referencia,x.pacas,config)}</td>
+<td>${(x.pacas/42).toFixed(2)}</td>
 </tr>`;
-});
-
 });
 
 });
@@ -250,19 +249,12 @@ function guardarFila(p,r){
 let val=parseInt(document.getElementById(`c-${p}-${r}`).value);
 if(!val) return alert("Ingrese valor");
 
-db.collection("estibas")
-.where("producto","==",p)
-.where("referencia","==",r)
-.get()
-.then(snap=>{
+let clave=p+"_"+r;
 
-if(snap.empty){
-db.collection("estibas").add({producto:p,referencia:r,pacas:val});
-}else{
-let doc=snap.docs[0];
-db.collection("estibas").doc(doc.id).update({pacas:val});
-}
-
+db.collection("estibas").doc(clave).set({
+producto:p,
+referencia:r,
+pacas:val
 });
 
 alert("Guardado");
@@ -320,7 +312,6 @@ tablaUsuarios.innerHTML+=`
 <td>${u.rol}</td>
 <td><button onclick="eliminarUsuario('${doc.id}')">🗑</button></td>
 </tr>`;
-
 });
 
 });
@@ -337,14 +328,8 @@ function puedeAcceder(id){
 let rol=localStorage.getItem("rol");
 
 if(rol==="Admin") return true;
-
-if(rol==="Supervisor"){
-return id!=="config" && id!=="usuarios";
-}
-
-if(rol==="Operador"){
-return id==="entradas"||id==="salidas";
-}
+if(rol==="Supervisor") return id!=="config" && id!=="usuarios";
+if(rol==="Operador") return id==="entradas"||id==="salidas";
 
 return false;
 }
@@ -362,26 +347,4 @@ if(admin) return true;
 
 alert("Clave incorrecta");
 return false;
-}
-
-// ================= INVENTARIO CORE =================
-function actualizarInventario(p,r,pac){
-
-db.collection("inventario")
-.where("producto","==",p)
-.where("referencia","==",r)
-.get()
-.then(snap=>{
-
-if(snap.empty){
-db.collection("inventario").add({producto:p,referencia:r,pacas:pac});
-}else{
-let doc=snap.docs[0];
-let data=doc.data();
-db.collection("inventario").doc(doc.id).update({
-pacas:data.pacas+pac
-});
-}
-
-});
 }
