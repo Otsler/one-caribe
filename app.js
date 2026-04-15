@@ -197,22 +197,29 @@ function verInventario(){
 db.collection("inventario").onSnapshot(snap=>{
 
 tablaInventario.innerHTML="";
+let total=0;
 
 snap.forEach(doc=>{
 let x=doc.data();
+
+total+=x.pacas;
 
 tablaInventario.innerHTML+=`
 <tr>
 <td>${x.producto}</td>
 <td>${x.referencia}</td>
 <td>${x.pacas}</td>
-<td>${(x.pacas/42).toFixed(2)}</td>
+<td id="estiba-${doc.id}">0</td>
 </tr>`;
+
+calcularEstibas(doc.id,x.producto,x.referencia,x.pacas);
+
 });
+
+totales.innerHTML="TOTAL PACAS: "+total;
 
 });
 }
-
 // ================= CONFIG =================
 function cargarConfig(){
 
@@ -308,13 +315,34 @@ let u=doc.data();
 tablaUsuarios.innerHTML+=`
 <tr>
 <td>${u.usuario}</td>
-<td>${u.clave}</td>
+
+<td>
+<input id="pass-${doc.id}" value="${u.clave}">
+</td>
+
 <td>${u.rol}</td>
-<td><button onclick="eliminarUsuario('${doc.id}')">🗑</button></td>
+
+<td>
+<button onclick="guardarUsuario('${doc.id}')">💾</button>
+<button onclick="eliminarUsuario('${doc.id}')">🗑</button>
+</td>
 </tr>`;
 });
 
 });
+}
+function guardarUsuario(id){
+
+let nueva=document.getElementById("pass-"+id).value;
+
+if(!nueva) return alert("Ingrese clave");
+
+db.collection("usuarios").doc(id).update({
+clave:nueva
+});
+
+alert("Contraseña actualizada");
+
 }
 
 function eliminarUsuario(id){
@@ -357,3 +385,105 @@ localStorage.removeItem("rol");
 location.href="index.html";
 
 }
+function calcularEstibas(id,p,r,pac){
+
+db.collection("estibas").doc(p+"_"+r).get()
+.then(doc=>{
+
+if(!doc.exists){
+document.getElementById("estiba-"+id).innerText="0";
+return;
+}
+
+let conf=doc.data();
+
+let est=(pac/conf.pacas).toFixed(2);
+
+document.getElementById("estiba-"+id).innerText=est;
+
+});
+}
+function descargarInventario(){
+
+db.collection("inventario").get().then(snap=>{
+
+let csv="Producto,Referencia,Pacas,Estibas\n";
+
+snap.forEach(doc=>{
+let x=doc.data();
+
+csv+=`${x.producto},${x.referencia},${x.pacas},${(x.pacas/42).toFixed(2)}\n`;
+});
+
+let blob=new Blob([csv]);
+let a=document.createElement("a");
+a.href=URL.createObjectURL(blob);
+a.download="inventario.csv";
+a.click();
+
+});
+
+}
+function imprimirInventario(){
+
+db.collection("inventario").get().then(snap=>{
+
+let filas="";
+
+snap.forEach(doc=>{
+let x=doc.data();
+
+filas+=`
+<tr>
+<td>${x.producto}</td>
+<td>${x.referencia}</td>
+<td>${x.pacas}</td>
+<td>${(x.pacas/42).toFixed(2)}</td>
+</tr>`;
+});
+
+let contenido=`
+<html>
+<head>
+<style>
+body{font-family:Arial;padding:20px;}
+h2{text-align:center;}
+table{width:100%;border-collapse:collapse;}
+th{background:#1e293b;color:white;padding:10px;}
+td{padding:10px;border-bottom:1px solid #ddd;}
+</style>
+</head>
+
+<body>
+
+<h2>Inventario ONE CARIBE</h2>
+<p>${new Date().toLocaleString()}</p>
+
+<table>
+<tr>
+<th>Producto</th>
+<th>Referencia</th>
+<th>Pacas</th>
+<th>Estibas</th>
+</tr>
+
+${filas}
+
+</table>
+
+<p style="text-align:center;margin-top:20px;">
+© 2026 ONE CARIBE | Otsler Suarez
+</p>
+
+</body>
+</html>
+`;
+
+let w=window.open("");
+w.document.write(contenido);
+w.print();
+
+});
+
+}
+
