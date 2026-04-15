@@ -70,59 +70,28 @@ border:none;
 border-radius:6px;
 padding:12px;
 cursor:pointer;
-transition:0.2s;
 }
 
 button:hover{
 background:#1d4ed8;
 }
 
-/* TABLA */
+/* TABLAS */
 table{
 width:100%;
 border-collapse:collapse;
 margin-top:20px;
-font-size:16px;
 }
 
 th{
 background:#1e293b;
 color:white;
-padding:15px;
-text-align:left;
+padding:12px;
 }
 
 td{
-padding:14px;
+padding:10px;
 border-bottom:1px solid #ddd;
-}
-
-tr:hover{
-background:#f3f4f6;
-}
-
-/* QR */
-#readerE, #readerS{
-max-width:220px;
-margin-bottom:10px;
-}
-
-/* LOGIN */
-.login-body{
-display:flex;
-justify-content:center;
-align-items:center;
-height:100vh;
-background:#1e293b;
-}
-
-.login-box{
-background:white;
-padding:30px;
-border-radius:12px;
-width:300px;
-box-shadow:0 4px 10px rgba(0,0,0,0.2);
-text-align:center;
 }
 
 /* FOOTER */
@@ -135,10 +104,9 @@ background:#1e293b;
 color:white;
 text-align:center;
 padding:8px;
-font-size:13px;
 }
 
-/* 🔥 BOTÓN MENÚ */
+/* MENU BUTTON */
 .menu-btn{
 display:none;
 background:#2563eb;
@@ -153,36 +121,25 @@ cursor:pointer;
 /* 📱 RESPONSIVE */
 @media (max-width:768px){
 
-/* SIDEBAR OCULTO */
 .sidebar{
 left:-220px;
 }
 
-/* CUANDO SE ABRE */
 .sidebar.active{
 left:0;
 }
 
-/* CONTENIDO COMPLETO */
 .content{
 margin-left:0;
 }
 
-/* FOOTER FULL */
 .footer-app{
 left:0;
 width:100%;
 }
 
-/* MOSTRAR BOTÓN */
 .menu-btn{
 display:block;
 }
 
-/* NAVBAR AJUSTE */
-.navbar{
-display:flex;
-align-items:center;
-gap:10px;
-}
 }
