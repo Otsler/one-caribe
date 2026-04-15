@@ -359,6 +359,8 @@ sidebar.style.left = "0px";
 }
 
 }
-if('serviceWorker' in navigator){
-navigator.serviceWorker.register('service-worker.js');
+if ('serviceWorker' in navigator) {
+navigator.serviceWorker.register('service-worker.js')
+.then(()=> console.log("Service Worker activo"))
+.catch(err=> console.log("Error SW:", err));
 }
