@@ -141,6 +141,9 @@ pacas: pac,
 usuario: localStorage.getItem("usuario")
 });
 
+// 🔥 ACTUALIZAR INVENTARIO (AQUÍ VA)
+actualizarInventario(p,r,pac);
+
 pacasE.value="";
 
 alert("Entrada registrada");
@@ -148,40 +151,54 @@ alert("Entrada registrada");
 // ================= SALIDAS =================
 function salida(){
 
-let p=productoS.value;
-let r=referenciaS.value;
-let pac=parseInt(pacasS.value);
+let p = productoS.value;
+let r = referenciaS.value;
+let pac = parseInt(pacasS.value);
 
-let inv=JSON.parse(localStorage.getItem("inventario"))||[];
+if(!pac){
+alert("Ingrese cantidad");
+return;
+}
 
-let item=inv.find(x=>x.producto==p && x.referencia==r);
+// 🔥 validar inventario en nube
+db.collection("inventario")
+.where("producto","==",p)
+.where("referencia","==",r)
+.get()
+.then(snapshot=>{
 
-if(!item || item.pacas<pac){
+if(snapshot.empty){
 alert("Sin inventario");
 return;
 }
 
-item.pacas-=pac;
+let doc = snapshot.docs[0];
+let data = doc.data();
 
-let sal=JSON.parse(localStorage.getItem("salidas"))||[];
+if(data.pacas < pac){
+alert("No hay suficiente inventario");
+return;
+}
 
-sal.push({
-fecha:new Date().toLocaleString(),
-producto:p,
-referencia:r,
-pacas:pac,
-usuario:localStorage.getItem("usuario")
+// 🔥 guardar salida
+db.collection("salidas").add({
+fecha: new Date().toLocaleString(),
+producto: p,
+referencia: r,
+pacas: pac,
+usuario: localStorage.getItem("usuario")
 });
 
-localStorage.setItem("salidas",JSON.stringify(sal));
-localStorage.setItem("inventario",JSON.stringify(inv));
+// 🔥 descontar inventario
+db.collection("inventario").doc(doc.id).update({
+pacas: data.pacas - pac
+});
 
 pacasS.value="";
 
-verSalidas();
-verInventario();
-
 alert("Salida registrada");
+
+});
 }
 
 // ================= TABLAS =================
@@ -213,10 +230,16 @@ tablaEntradas.innerHTML+=`
 }
 
 function verSalidas(){
-let data=JSON.parse(localStorage.getItem("salidas"))||[];
+
+db.collection("salidas")
+.orderBy("fecha","desc")
+.onSnapshot(snapshot=>{
+
 tablaSalidas.innerHTML="";
 
-data.slice().reverse().forEach(x=>{
+snapshot.forEach(doc=>{
+let x = doc.data();
+
 tablaSalidas.innerHTML+=`
 <tr>
 <td>${x.fecha}</td>
@@ -224,7 +247,11 @@ tablaSalidas.innerHTML+=`
 <td>${x.referencia}</td>
 <td>${x.pacas}</td>
 <td>${x.usuario}</td>
-</tr>`;
+</tr>
+`;
+
+});
+
 });
 }
 
@@ -246,19 +273,27 @@ return (pac / c.pacas).toFixed(2);
 
 function verInventario(){
 
-let data=JSON.parse(localStorage.getItem("inventario"))||[];
+db.collection("inventario")
+.onSnapshot(snapshot=>{
+
 tablaInventario.innerHTML="";
 
-data.forEach(x=>{
+snapshot.forEach(doc=>{
+
+let x = doc.data();
+
 tablaInventario.innerHTML+=`
 <tr>
 <td>${x.producto}</td>
 <td>${x.referencia}</td>
 <td>${x.pacas}</td>
-<td>${getEstibas(x.producto,x.referencia,x.pacas)}</td>
-</tr>`;
+<td>${(x.pacas/42).toFixed(2)}</td>
+</tr>
+`;
+
 });
 
+});
 }
 
 // ================= CONFIG (ARREGLADO) =================
@@ -294,25 +329,41 @@ tablaConfig.innerHTML=html;
 
 function guardarFila(p,r){
 
-let val=parseInt(document.getElementById(`c-${p}-${r}`).value);
+let val = parseInt(document.getElementById(`c-${p}-${r}`).value);
 
 if(!val){
 alert("Ingrese valor");
 return;
 }
 
-let conf=JSON.parse(localStorage.getItem("estibas"))||[];
+db.collection("estibas")
+.where("producto","==",p)
+.where("referencia","==",r)
+.get()
+.then(snapshot=>{
 
-let item=conf.find(x=>x.producto==p && x.referencia==r);
+if(snapshot.empty){
 
-if(item) item.pacas=val;
-else conf.push({producto:p,referencia:r,pacas:val});
+db.collection("estibas").add({
+producto:p,
+referencia:r,
+pacas:val
+});
 
-localStorage.setItem("estibas",JSON.stringify(conf));
+}else{
+
+let doc = snapshot.docs[0];
+
+db.collection("estibas").doc(doc.id).update({
+pacas:val
+});
+
+}
+
+});
 
 alert("Guardado");
 }
-
 // ================= DESCARGAR =================
 function descargarInventario(){
 
@@ -575,7 +626,7 @@ function limpiar(tipo){
 
 let clave = document.getElementById("claveAdmin").value;
 
-// 🔐 VALIDAR ADMIN
+// 🔐 VALIDAR ADMIN (sigue usando local por ahora)
 let usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
 
 let admin = usuarios.find(x=>x.rol==="Admin" && x.clave===clave);
@@ -588,26 +639,42 @@ return;
 // ⚠️ CONFIRMAR
 if(!confirm("¿Seguro que deseas eliminar esta información?")) return;
 
-// 🔥 ELIMINAR SEGÚN TIPO
-if(tipo==="entradas"){
-localStorage.removeItem("entradas");
+// 🔥 ELIMINAR EN FIREBASE
+db.collection(tipo).get().then(snapshot=>{
+
+let total = snapshot.size;
+
+if(total === 0){
+alert("No hay datos para eliminar");
+return;
 }
 
-if(tipo==="salidas"){
-localStorage.removeItem("salidas");
-}
+let contador = 0;
 
-if(tipo==="inventario"){
-localStorage.removeItem("inventario");
-}
+snapshot.forEach(doc=>{
 
-verEntradas();
-verSalidas();
-verInventario();
+db.collection(tipo).doc(doc.id).delete()
+.then(()=>{
+contador++;
 
-alert("✅ Proceso realizado correctamente");
+if(contador === total){
+
+// 🔄 refrescar tablas
+if(tipo==="entradas") verEntradas();
+if(tipo==="salidas") verSalidas();
+if(tipo==="inventario") verInventario();
+
+alert("✅ Datos eliminados correctamente");
 
 document.getElementById("claveAdmin").value="";
+}
+
+});
+
+});
+
+});
+
 }
 // ================= USUARIOS PRO =================
 
@@ -619,67 +686,48 @@ let c = passN.value.trim();
 let rol = rolN.value;
 
 if(!u || !c){
-alert("Complete los campos");
+alert("Complete campos");
 return;
 }
 
-let list = JSON.parse(localStorage.getItem("usuarios")) || [];
-
-// 🔥 VALIDAR DUPLICADOS
-let existe = list.find(x=>x.usuario === u);
-
-if(existe){
-alert("❌ El usuario ya existe");
-return;
-}
-
-// 🔥 GUARDAR
-list.push({
-usuario: u,
-clave: c,
-rol: rol
+db.collection("usuarios").add({
+usuario:u,
+clave:c,
+rol:rol
 });
 
-localStorage.setItem("usuarios", JSON.stringify(list));
-
-verUsuarios();
+alert("Usuario creado");
 
 userN.value="";
 passN.value="";
-
-alert("✅ Usuario creado");
 }
-
 // MOSTRAR USUARIOS
 function verUsuarios(){
 
-let lista = JSON.parse(localStorage.getItem("usuarios")) || [];
+db.collection("usuarios")
+.onSnapshot(snapshot=>{
 
 tablaUsuarios.innerHTML="";
 
-lista.forEach((u,i)=>{
+snapshot.forEach(doc=>{
+
+let u = doc.data();
 
 tablaUsuarios.innerHTML+=`
 <tr>
 <td>${u.usuario}</td>
-
-<td>
-<input type="text" id="pass-${i}" value="${u.clave}">
-</td>
-
+<td>${u.clave}</td>
 <td>${u.rol}</td>
-
 <td>
-<button onclick="guardarUsuario(${i})">💾</button>
-<button onclick="eliminarUsuario(${i})">🗑</button>
+<button onclick="eliminarUsuario('${doc.id}')">🗑</button>
 </td>
 </tr>
 `;
 
 });
 
+});
 }
-
 // EDITAR CONTRASEÑA
 function guardarUsuario(i){
 
@@ -702,17 +750,17 @@ verUsuarios();
 }
 
 // ELIMINAR
-function eliminarUsuario(i){
+function eliminarUsuario(id){
 
 if(!confirm("¿Eliminar usuario?")) return;
 
-let lista = JSON.parse(localStorage.getItem("usuarios"));
-
-lista.splice(i,1);
-
-localStorage.setItem("usuarios", JSON.stringify(lista));
-
+// 🔥 eliminar en firebase
+db.collection("usuarios").doc(id).delete()
+.then(()=>{
+alert("Usuario eliminado");
 verUsuarios();
+});
+
 }
 // ================= CONTROL DE ACCESO =================
 function puedeAcceder(id){
@@ -757,4 +805,33 @@ alert("❌ Clave incorrecta");
 return false;
 }
 
+}
+function actualizarInventario(p,r,pac){
+
+db.collection("inventario")
+.where("producto","==",p)
+.where("referencia","==",r)
+.get()
+.then(snapshot=>{
+
+if(snapshot.empty){
+
+db.collection("inventario").add({
+producto:p,
+referencia:r,
+pacas:pac
+});
+
+}else{
+
+let doc = snapshot.docs[0];
+let data = doc.data();
+
+db.collection("inventario").doc(doc.id).update({
+pacas: data.pacas + pac
+});
+
+}
+
+});
 }
