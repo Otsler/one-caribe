@@ -403,17 +403,20 @@ document.getElementById("estiba-"+id).innerText=est;
 
 });
 }
-function descargarInventario(){
+async function descargarInventario(){
 
-db.collection("inventario").get().then(snap=>{
+try{
 
-let promesas=[];
+let snap = await db.collection("inventario").get();
 
-snap.forEach(doc=>{
+let data = [];
+
+for (let doc of snap.docs){
+
 let x = doc.data();
 
-let prom = db.collection("estibas").doc(x.producto+"_"+x.referencia).get()
-.then(confDoc=>{
+// 🔥 traer configuración real
+let confDoc = await db.collection("estibas").doc(x.producto+"_"+x.referencia).get();
 
 let estibas = 0;
 
@@ -422,33 +425,29 @@ let conf = confDoc.data();
 estibas = (x.pacas / conf.pacas).toFixed(2);
 }
 
-return {
+data.push({
 Producto: x.producto,
 Referencia: x.referencia,
 Pacas: x.pacas,
 Estibas: estibas
-};
-
 });
 
-promesas.push(prom);
+}
 
-});
-
-Promise.all(promesas).then(data=>{
-
-// 🔥 CREAR EXCEL REAL
+// 🔥 crear excel
 let ws = XLSX.utils.json_to_sheet(data);
 let wb = XLSX.utils.book_new();
 
 XLSX.utils.book_append_sheet(wb, ws, "Inventario");
 
-// 🔥 DESCARGAR
+// 🔥 descargar
 XLSX.writeFile(wb, "Inventario_ONE_CARIBE.xlsx");
 
-});
+}catch(error){
+console.error(error);
+alert("Error al descargar archivo");
+}
 
-});
 }
 function imprimirInventario(){
 
