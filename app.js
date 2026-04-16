@@ -429,9 +429,11 @@ function imprimirInventario(){
 db.collection("inventario").get().then(snap=>{
 
 let filas="";
+let total=0;
 
 snap.forEach(doc=>{
 let x=doc.data();
+total += x.pacas;
 
 filas+=`
 <tr>
@@ -445,6 +447,8 @@ filas+=`
 let contenido=`
 <html>
 <head>
+<title>Inventario ONE CARIBE</title>
+
 <style>
 
 body{
@@ -453,27 +457,31 @@ padding:30px;
 color:#111;
 }
 
-/* 🔥 ENCABEZADO */
-h2{
-text-align:center;
-margin-bottom:10px;
+/* 🔥 HEADER */
+.header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:20px;
 }
 
-.fecha{
-text-align:center;
-margin-bottom:20px;
-font-size:14px;
+.titulo{
+font-size:22px;
+font-weight:bold;
+}
+
+.sub{
+font-size:13px;
 color:#555;
 }
 
-/* 🔥 TABLA CENTRADA */
+/* 🔥 TABLA */
 table{
 width:90%;
-margin:auto; /* 🔥 centra la tabla */
+margin:auto;
 border-collapse:collapse;
 }
 
-/* 🔥 ENCABEZADOS */
 th{
 background:#1e293b;
 color:white;
@@ -481,35 +489,46 @@ padding:12px;
 text-align:center;
 }
 
-/* 🔥 DATOS */
 td{
 padding:12px;
 border-bottom:1px solid #ddd;
 text-align:center;
 }
 
-/* 🔥 EFECTO LIMPIO */
 tr:nth-child(even){
 background:#f9fafb;
 }
 
+/* 🔥 TOTAL */
+.total{
+margin-top:20px;
+text-align:right;
+font-weight:bold;
+}
+
 /* 🔥 FOOTER */
 .footer{
-text-align:center;
 margin-top:30px;
-font-size:13px;
+text-align:center;
+font-size:12px;
 color:#555;
 }
 
 </style>
+
 </head>
 
 <body>
 
-<h2>Inventario ONE CARIBE</h2>
+<div class="header">
+<div>
+<div class="titulo">ONE CARIBE</div>
+<div class="sub">Reporte de Inventario</div>
+</div>
 
-<div class="fecha">
+<div class="sub">
 ${new Date().toLocaleString()}
+</div>
 </div>
 
 <table>
@@ -524,19 +543,22 @@ ${filas}
 
 </table>
 
+<div class="total">
+TOTAL PACAS: ${total}
+</div>
+
 <div class="footer">
-© 2026 ONE CARIBE
+© 2026 ONE CARIBE | Otsler Suarez
 </div>
 
 </body>
 </html>
 `;
 
-let w=window.open("");
+let w = window.open("");
 w.document.write(contenido);
 w.document.close();
 w.print();
 
 });
 }
-
