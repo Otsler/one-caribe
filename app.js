@@ -407,22 +407,46 @@ function descargarInventario(){
 
 db.collection("inventario").get().then(snap=>{
 
-let csv="Producto,Referencia,Pacas,Estibas\n";
+let promesas=[];
 
 snap.forEach(doc=>{
-let x=doc.data();
+let x = doc.data();
 
-csv+=`${x.producto},${x.referencia},${x.pacas},${(x.pacas/42).toFixed(2)}\n`;
+// 🔥 CONSULTAR ESTIBAS
+let prom = db.collection("estibas").doc(x.producto+"_"+x.referencia).get()
+.then(confDoc=>{
+
+let estibas = 0;
+
+if(confDoc.exists){
+let conf = confDoc.data();
+estibas = (x.pacas / conf.pacas).toFixed(2);
+}
+
+return `${x.producto},${x.referencia},${x.pacas},${estibas}`;
+
 });
 
-let blob=new Blob([csv]);
-let a=document.createElement("a");
-a.href=URL.createObjectURL(blob);
-a.download="inventario.csv";
+promesas.push(prom);
+
+});
+
+// 🔥 ESPERAR TODAS
+Promise.all(promesas).then(resultados=>{
+
+let csv = "Producto,Referencia,Pacas,Estibas\n";
+csv += resultados.join("\n");
+
+let blob = new Blob([csv], { type: "text/csv" });
+
+let a = document.createElement("a");
+a.href = URL.createObjectURL(blob);
+a.download = "inventario.csv";
 a.click();
 
 });
 
+});
 }
 function imprimirInventario(){
 
@@ -435,7 +459,6 @@ snap.forEach(doc=>{
 let x = doc.data();
 total += x.pacas;
 
-// 🔥 CONSULTAR CONFIG DE ESTIBAS
 let prom = db.collection("estibas").doc(x.producto+"_"+x.referencia).get()
 .then(confDoc=>{
 
@@ -461,7 +484,6 @@ promesas.push(prom);
 
 });
 
-// 🔥 ESPERAR TODAS LAS CONSULTAS
 Promise.all(promesas).then(resultados=>{
 
 let filas = resultados.join("");
@@ -566,7 +588,7 @@ TOTAL PACAS: ${total}
 </div>
 
 <div class="footer">
-© 2026 ONE CARIBE
+© 2026 ONE CARIBE | Otsler Suarez
 </div>
 
 </body>
