@@ -422,7 +422,12 @@ let conf = confDoc.data();
 estibas = (x.pacas / conf.pacas).toFixed(2);
 }
 
-return `${x.producto},${x.referencia},${x.pacas},${estibas}`;
+return {
+Producto: x.producto,
+Referencia: x.referencia,
+Pacas: x.pacas,
+Estibas: estibas
+};
 
 });
 
@@ -430,20 +435,16 @@ promesas.push(prom);
 
 });
 
-Promise.all(promesas).then(resultados=>{
+Promise.all(promesas).then(data=>{
 
-let csv = "Producto,Referencia,Pacas,Estibas\n";
-csv += resultados.join("\n");
+// 🔥 CREAR EXCEL REAL
+let ws = XLSX.utils.json_to_sheet(data);
+let wb = XLSX.utils.book_new();
 
-// 🔥 BOM para Excel (ESTO ES LA CLAVE)
-let BOM = "\uFEFF";
+XLSX.utils.book_append_sheet(wb, ws, "Inventario");
 
-let blob = new Blob([BOM + csv], { type: "text/csv;charset=utf-8;" });
-
-let a = document.createElement("a");
-a.href = URL.createObjectURL(blob);
-a.download = "inventario.csv";
-a.click();
+// 🔥 DESCARGAR
+XLSX.writeFile(wb, "Inventario_ONE_CARIBE.xlsx");
 
 });
 
