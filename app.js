@@ -1,4 +1,4 @@
-// ================= INIT =================
+
 function initApp(){
 checkAuth();
 cargarSelects();
@@ -11,7 +11,6 @@ mostrar("entradas");
 setUserInfo();
 }
 
-// ================= LOGIN =================
 function checkAuth(){
 if(!localStorage.getItem("usuario")){
 location.href="index.html";
@@ -22,7 +21,6 @@ function setUserInfo(){
 userInfo.innerText = localStorage.getItem("usuario");
 }
 
-// ================= UI =================
 function mostrar(id){
 
 if(!puedeAcceder(id)){
@@ -63,7 +61,6 @@ ref.innerHTML+=`<option>${y}</option>`;
 prod.onchange();
 }
 
-// ================= ENTRADAS =================
 function entrada(){
 
 let p=productoE.value;
@@ -86,7 +83,6 @@ pacasE.value="";
 alert("Entrada registrada");
 }
 
-// ================= SALIDAS =================
 function salida(){
 
 let p=productoS.value;
@@ -124,7 +120,6 @@ alert("Salida registrada");
 });
 }
 
-// ================= TABLAS =================
 function verEntradas(){
 
 db.collection("entradas").orderBy("fecha","desc")
@@ -163,7 +158,6 @@ tablaSalidas.innerHTML+=`
 });
 }
 
-// ================= INVENTARIO =================
 function actualizarInventario(p,r,pac){
 
 let clave = p+"_"+r;
@@ -220,7 +214,7 @@ totales.innerHTML="TOTAL PACAS: "+total;
 
 });
 }
-// ================= CONFIG =================
+
 function cargarConfig(){
 
 db.collection("estibas").onSnapshot(snap=>{
@@ -267,7 +261,6 @@ pacas:val
 alert("Guardado");
 }
 
-// ================= LIMPIAR =================
 function limpiar(tipo){
 
 let clave=document.getElementById("claveAdmin").value;
@@ -287,7 +280,6 @@ db.collection(tipo).doc(doc.id).delete();
 alert("Eliminado");
 }
 
-// ================= USUARIOS =================
 function crearUsuario(){
 
 let u=userN.value.trim();
@@ -350,7 +342,6 @@ if(!confirm("¿Eliminar usuario?")) return;
 db.collection("usuarios").doc(id).delete();
 }
 
-// ================= ACCESO =================
 function puedeAcceder(id){
 
 let rol=localStorage.getItem("rol");
@@ -376,7 +367,7 @@ if(admin) return true;
 alert("Clave incorrecta");
 return false;
 }
-// ================= LOGOUT =================
+
 function logout(){
 
 localStorage.removeItem("usuario");
@@ -403,18 +394,15 @@ document.getElementById("estiba-"+id).innerText=est;
 
 });
 }
-// ================= DESCARGAR INVENTARIO PRO =================
 window.descargarInventario = async function(){
 
 try{
 
-// 🔥 VALIDAR LIBRERÍA
 if(typeof XLSX === "undefined"){
 alert("❌ Error: librería Excel no cargó");
 return;
 }
 
-// 🔥 TRAER INVENTARIO
 let snap = await db.collection("inventario").get();
 
 let data = [];
@@ -423,7 +411,6 @@ for (let doc of snap.docs){
 
 let x = doc.data();
 
-// 🔥 TRAER CONFIG ESTIBAS
 let confDoc = await db.collection("estibas").doc(x.producto+"_"+x.referencia).get();
 
 let estibas = 0;
@@ -433,7 +420,6 @@ let conf = confDoc.data();
 estibas = (x.pacas / conf.pacas).toFixed(2);
 }
 
-// 🔥 ARMAR FILA
 data.push({
 Producto: x.producto,
 Referencia: x.referencia,
@@ -443,7 +429,6 @@ Estibas: estibas
 
 }
 
-// 🔥 CREAR EXCEL
 let ws = XLSX.utils.json_to_sheet(data);
 
 // 🔥 ANCHO DE COLUMNAS (PRO)
@@ -481,7 +466,6 @@ snap.forEach(doc=>{
 let x = doc.data();
 total += x.pacas;
 
-// 🔥 CONSULTAR ESTIBAS
 let prom = db.collection("estibas").doc(x.producto+"_"+x.referencia).get()
 .then(confDoc=>{
 
@@ -491,7 +475,6 @@ if(confDoc.exists){
 let conf = confDoc.data();
 estibas = (x.pacas / conf.pacas).toFixed(2);
 
-// 🔥 SUMAR ESTIBAS
 totalEstibas += parseFloat(estibas);
 }
 
@@ -510,7 +493,6 @@ promesas.push(prom);
 
 });
 
-// 🔥 ESPERAR TODO
 Promise.all(promesas).then(resultados=>{
 
 let filas = resultados.join("");
