@@ -446,18 +446,71 @@ let contenido=`
 <html>
 <head>
 <style>
-body{font-family:Arial;padding:20px;}
-h2{text-align:center;}
-table{width:100%;border-collapse:collapse;}
-th{background:#1e293b;color:white;padding:10px;}
-td{padding:10px;border-bottom:1px solid #ddd;}
+
+body{
+font-family:Arial;
+padding:30px;
+color:#111;
+}
+
+/* 🔥 ENCABEZADO */
+h2{
+text-align:center;
+margin-bottom:10px;
+}
+
+.fecha{
+text-align:center;
+margin-bottom:20px;
+font-size:14px;
+color:#555;
+}
+
+/* 🔥 TABLA CENTRADA */
+table{
+width:90%;
+margin:auto; /* 🔥 centra la tabla */
+border-collapse:collapse;
+}
+
+/* 🔥 ENCABEZADOS */
+th{
+background:#1e293b;
+color:white;
+padding:12px;
+text-align:center;
+}
+
+/* 🔥 DATOS */
+td{
+padding:12px;
+border-bottom:1px solid #ddd;
+text-align:center;
+}
+
+/* 🔥 EFECTO LIMPIO */
+tr:nth-child(even){
+background:#f9fafb;
+}
+
+/* 🔥 FOOTER */
+.footer{
+text-align:center;
+margin-top:30px;
+font-size:13px;
+color:#555;
+}
+
 </style>
 </head>
 
 <body>
 
 <h2>Inventario ONE CARIBE</h2>
-<p>${new Date().toLocaleString()}</p>
+
+<div class="fecha">
+${new Date().toLocaleString()}
+</div>
 
 <table>
 <tr>
@@ -471,9 +524,9 @@ ${filas}
 
 </table>
 
-<p style="text-align:center;margin-top:20px;">
+<div class="footer">
 © 2026 ONE CARIBE
-</p>
+</div>
 
 </body>
 </html>
@@ -481,9 +534,9 @@ ${filas}
 
 let w=window.open("");
 w.document.write(contenido);
+w.document.close();
 w.print();
 
 });
-
 }
 
