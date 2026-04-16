@@ -472,13 +472,16 @@ function imprimirInventario(){
 
 db.collection("inventario").get().then(snap=>{
 
-let total=0;
-let promesas=[];
+let total = 0;
+let totalEstibas = 0;
+let promesas = [];
 
 snap.forEach(doc=>{
+
 let x = doc.data();
 total += x.pacas;
 
+// 🔥 CONSULTAR ESTIBAS
 let prom = db.collection("estibas").doc(x.producto+"_"+x.referencia).get()
 .then(confDoc=>{
 
@@ -487,6 +490,9 @@ let estibas = 0;
 if(confDoc.exists){
 let conf = confDoc.data();
 estibas = (x.pacas / conf.pacas).toFixed(2);
+
+// 🔥 SUMAR ESTIBAS
+totalEstibas += parseFloat(estibas);
 }
 
 return `
@@ -504,11 +510,12 @@ promesas.push(prom);
 
 });
 
+// 🔥 ESPERAR TODO
 Promise.all(promesas).then(resultados=>{
 
 let filas = resultados.join("");
 
-let contenido=`
+let contenido = `
 <html>
 <head>
 <title>Inventario ONE CARIBE</title>
@@ -565,6 +572,7 @@ background:#f9fafb;
 margin-top:20px;
 text-align:right;
 font-weight:bold;
+font-size:15px;
 }
 
 .footer{
@@ -604,11 +612,12 @@ ${filas}
 </table>
 
 <div class="total">
-TOTAL PACAS: ${total}
+TOTAL PACAS: ${total}<br>
+TOTAL ESTIBAS: ${totalEstibas.toFixed(2)}
 </div>
 
 <div class="footer">
-© 2026 ONE CARIBE | Otsler Suarez
+© 2026 ONE CARIBE
 </div>
 
 </body>
