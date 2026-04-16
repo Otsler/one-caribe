@@ -67,8 +67,10 @@ background:#1d4ed8;
 
 <button onclick="login()">Ingresar</button>
 </div>
+<div style="position:absolute; bottom:15px; width:100%; text-align:center; color:white; font-size:13px;">
+© 2026 ONE CARIBE | Autor: <b>Otsler Suarez - 3028592985</b>
+</div>
 
-<!-- 🔥 FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
@@ -82,7 +84,6 @@ projectId: "one-caribe"
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// 🔥 LOGIN REAL DESDE FIREBASE
 function login(){
 
 let u = document.getElementById("usuario").value.trim();
@@ -93,7 +94,6 @@ alert("Ingrese datos");
 return;
 }
 
-// 🔥 CONSULTAR EN FIREBASE
 db.collection("usuarios")
 .where("usuario","==",u)
 .where("clave","==",c)
@@ -105,14 +105,11 @@ alert("❌ Credenciales incorrectas");
 return;
 }
 
-// 🔥 OBTENER USUARIO
 let user = snapshot.docs[0].data();
 
-// 🔥 GUARDAR SESIÓN
 localStorage.setItem("usuario", user.usuario);
 localStorage.setItem("rol", user.rol);
 
-// 🔥 REDIRECCIÓN
 window.location.href = "app.html";
 
 })
