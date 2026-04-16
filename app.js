@@ -428,21 +428,43 @@ function imprimirInventario(){
 
 db.collection("inventario").get().then(snap=>{
 
-let filas="";
 let total=0;
+let promesas=[];
 
 snap.forEach(doc=>{
-let x=doc.data();
+let x = doc.data();
 total += x.pacas;
 
-filas+=`
+// 🔥 CONSULTAR CONFIG DE ESTIBAS
+let prom = db.collection("estibas").doc(x.producto+"_"+x.referencia).get()
+.then(confDoc=>{
+
+let estibas = 0;
+
+if(confDoc.exists){
+let conf = confDoc.data();
+estibas = (x.pacas / conf.pacas).toFixed(2);
+}
+
+return `
 <tr>
 <td>${x.producto}</td>
 <td>${x.referencia}</td>
 <td>${x.pacas}</td>
-<td>${(x.pacas/42).toFixed(2)}</td>
-</tr>`;
+<td>${estibas}</td>
+</tr>
+`;
+
 });
+
+promesas.push(prom);
+
+});
+
+// 🔥 ESPERAR TODAS LAS CONSULTAS
+Promise.all(promesas).then(resultados=>{
+
+let filas = resultados.join("");
 
 let contenido=`
 <html>
@@ -457,7 +479,6 @@ padding:30px;
 color:#111;
 }
 
-/* 🔥 HEADER */
 .header{
 display:flex;
 justify-content:space-between;
@@ -475,7 +496,6 @@ font-size:13px;
 color:#555;
 }
 
-/* 🔥 TABLA */
 table{
 width:90%;
 margin:auto;
@@ -499,14 +519,12 @@ tr:nth-child(even){
 background:#f9fafb;
 }
 
-/* 🔥 TOTAL */
 .total{
 margin-top:20px;
 text-align:right;
 font-weight:bold;
 }
 
-/* 🔥 FOOTER */
 .footer{
 margin-top:30px;
 text-align:center;
@@ -548,7 +566,7 @@ TOTAL PACAS: ${total}
 </div>
 
 <div class="footer">
-© 2026 ONE CARIBE | Otsler Suarez
+© 2026 ONE CARIBE
 </div>
 
 </body>
@@ -559,6 +577,8 @@ let w = window.open("");
 w.document.write(contenido);
 w.document.close();
 w.print();
+
+});
 
 });
 }
