@@ -173,7 +173,12 @@ const db = firebase.firestore();
 <!-- MENU MOBILE -->
 <script>
 function toggleMenu(){
-document.getElementById("sidebar").classList.toggle("active");
+let sidebar = document.getElementById("sidebar");
+sidebar.classList.toggle("active");
+}
+function cerrarMenu(){
+let sidebar = document.getElementById("sidebar");
+sidebar.classList.remove("active");
 }
 </script>
 
