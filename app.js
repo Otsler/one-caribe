@@ -403,10 +403,18 @@ document.getElementById("estiba-"+id).innerText=est;
 
 });
 }
-async function descargarInventario(){
+// ================= DESCARGAR INVENTARIO PRO =================
+window.descargarInventario = async function(){
 
 try{
 
+// 🔥 VALIDAR LIBRERÍA
+if(typeof XLSX === "undefined"){
+alert("❌ Error: librería Excel no cargó");
+return;
+}
+
+// 🔥 TRAER INVENTARIO
 let snap = await db.collection("inventario").get();
 
 let data = [];
@@ -415,7 +423,7 @@ for (let doc of snap.docs){
 
 let x = doc.data();
 
-// 🔥 traer configuración real
+// 🔥 TRAER CONFIG ESTIBAS
 let confDoc = await db.collection("estibas").doc(x.producto+"_"+x.referencia).get();
 
 let estibas = 0;
@@ -425,6 +433,7 @@ let conf = confDoc.data();
 estibas = (x.pacas / conf.pacas).toFixed(2);
 }
 
+// 🔥 ARMAR FILA
 data.push({
 Producto: x.producto,
 Referencia: x.referencia,
@@ -434,18 +443,28 @@ Estibas: estibas
 
 }
 
-// 🔥 crear excel
+// 🔥 CREAR EXCEL
 let ws = XLSX.utils.json_to_sheet(data);
-let wb = XLSX.utils.book_new();
 
+// 🔥 ANCHO DE COLUMNAS (PRO)
+ws["!cols"] = [
+{ wch: 25 },
+{ wch: 15 },
+{ wch: 10 },
+{ wch: 10 }
+];
+
+let wb = XLSX.utils.book_new();
 XLSX.utils.book_append_sheet(wb, ws, "Inventario");
 
-// 🔥 descargar
+// 🔥 DESCARGAR
 XLSX.writeFile(wb, "Inventario_ONE_CARIBE.xlsx");
 
 }catch(error){
+
 console.error(error);
-alert("Error al descargar archivo");
+alert("❌ Error al descargar: " + error.message);
+
 }
 
 }
