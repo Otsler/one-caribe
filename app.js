@@ -472,7 +472,7 @@ ${filas}
 </table>
 
 <p style="text-align:center;margin-top:20px;">
-© 2026 ONE CARIBE | Otsler Suarez
+© 2026 ONE CARIBE
 </p>
 
 </body>
