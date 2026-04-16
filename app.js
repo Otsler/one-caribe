@@ -412,7 +412,6 @@ let promesas=[];
 snap.forEach(doc=>{
 let x = doc.data();
 
-// 🔥 CONSULTAR ESTIBAS
 let prom = db.collection("estibas").doc(x.producto+"_"+x.referencia).get()
 .then(confDoc=>{
 
@@ -431,13 +430,15 @@ promesas.push(prom);
 
 });
 
-// 🔥 ESPERAR TODAS
 Promise.all(promesas).then(resultados=>{
 
 let csv = "Producto,Referencia,Pacas,Estibas\n";
 csv += resultados.join("\n");
 
-let blob = new Blob([csv], { type: "text/csv" });
+// 🔥 BOM para Excel (ESTO ES LA CLAVE)
+let BOM = "\uFEFF";
+
+let blob = new Blob([BOM + csv], { type: "text/csv;charset=utf-8;" });
 
 let a = document.createElement("a");
 a.href = URL.createObjectURL(blob);
