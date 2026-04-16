@@ -12,19 +12,16 @@
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<!-- 🔥 ICONO CORRECTO -->
 <link rel="icon" type="image/x-icon" href="One.ico">
 
 </head>
 
-<!-- ✅ CSS CORRECTO (FORZANDO CARGA) -->
 <link rel="stylesheet" href="./estilos.css?v=2">
 
-<!-- PWA -->
+
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#1e293b">
 
-<!-- LIBRERÍAS -->
 <script src="https://unpkg.com/html5-qrcode"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -32,7 +29,6 @@
 
 <body onload="initApp()">
 
-<!-- NAVBAR -->
 <div class="navbar">
 
 <button class="menu-btn" onclick="toggleMenu()">☰</button>
@@ -45,7 +41,6 @@
 
 </div>
 
-<!-- SIDEBAR -->
 <div class="sidebar" id="sidebar">
 <a onclick="mostrar('entradas'); cerrarMenu()">📥 Entradas</a>
 <a onclick="mostrar('salidas'); cerrarMenu()">📤 Salidas</a>
@@ -54,11 +49,9 @@
 <a onclick="mostrar('usuarios'); cerrarMenu()">👥 Usuarios</a>
 </div>
 
-<!-- CONTENT -->
 <div class="content">
 <div class="card">
 
-<!-- ENTRADAS -->
 <div id="entradas" class="vista">
 <h3>Entradas</h3>
 
@@ -76,7 +69,6 @@
 </table>
 </div>
 
-<!-- SALIDAS -->
 <div id="salidas" class="vista" style="display:none;">
 <h3>Salidas</h3>
 
@@ -94,7 +86,6 @@
 </table>
 </div>
 
-<!-- INVENTARIO -->
 <div id="inventario" class="vista" style="display:none;">
 <h3>Inventario</h3>
 
@@ -114,7 +105,6 @@
 </table>
 </div>
 
-<!-- CONFIG -->
 <div id="config" class="vista" style="display:none;">
 <h3>Config Estibas</h3>
 <table><tbody id="tablaConfig"></tbody></table>
@@ -126,7 +116,6 @@
 <button onclick="limpiar('inventario')">🗑 Inventario</button>
 </div>
 
-<!-- USUARIOS -->
 <div id="usuarios" class="vista" style="display:none;">
 <h3>Usuarios</h3>
 
@@ -151,11 +140,10 @@
 
 </div>
 <div style="text-align:center; margin-top:30px; color:#555; font-size:14px;">
-© 2026 ONE CARIBE | Autor: <b>Otsler Suarez</b>
+© 2026 ONE CARIBE | Autor: <b>Otsler Suarez - 3028592985</b>
 </div>
 </div>
 
-<!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
@@ -173,7 +161,6 @@ const db = firebase.firestore();
 <script src="data.js"></script>
 <script src="app.js"></script>
 
-<!-- MENU MOBILE -->
 <script>
 function toggleMenu(){
 let sidebar = document.getElementById("sidebar");
@@ -186,7 +173,6 @@ sidebar.classList.remove("active");
 }
 </script>
 
-<!-- 🔥 ESTE ES EL PUNTO 2 -->
 <script>
 document.addEventListener("click", function(e){
 
