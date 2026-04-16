@@ -176,10 +176,29 @@ function toggleMenu(){
 let sidebar = document.getElementById("sidebar");
 sidebar.classList.toggle("active");
 }
+
 function cerrarMenu(){
 let sidebar = document.getElementById("sidebar");
 sidebar.classList.remove("active");
 }
+</script>
+
+<!-- 🔥 ESTE ES EL PUNTO 2 -->
+<script>
+document.addEventListener("click", function(e){
+
+let sidebar = document.getElementById("sidebar");
+let btn = document.querySelector(".menu-btn");
+
+if(
+sidebar.classList.contains("active") &&
+!sidebar.contains(e.target) &&
+!btn.contains(e.target)
+){
+sidebar.classList.remove("active");
+}
+
+});
 </script>
 
 </body>
