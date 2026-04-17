@@ -7,7 +7,6 @@ verInventario();
 cargarConfig();
 verUsuarios();
 mostrar("entradas");
-setUserInfo();
 }
 
 function checkAuth(){
