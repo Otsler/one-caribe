@@ -1,7 +1,12 @@
-body {
+/* ===== RESET GENERAL ===== */
+html, body {
 margin:0;
+padding:0;
+overflow-x:hidden;
 font-family:Arial;
-background:#f1f5f9;
+
+/* 🔥 evita línea blanca en móvil */
+background:#1e293b;
 }
 
 /* ===== NAVBAR ===== */
@@ -13,7 +18,6 @@ display:flex;
 align-items:center;
 justify-content:space-between;
 
-/* 🔥 SOLUCIÓN REAL */
 position:fixed;
 top:0;
 left:200px;
@@ -75,8 +79,12 @@ background:#1e293b;
 .content{
 margin-left:200px;
 padding:20px;
-padding-top:80px; /* 🔥 BAJA EL CONTENIDO */
+padding-top:80px;
 transition:0.3s;
+
+/* 🔥 fondo real del contenido */
+background:#f1f5f9;
+min-height:100vh;
 }
 
 .card{
@@ -170,6 +178,7 @@ left:0;
 /* 🔥 NAVBAR EN MÓVIL */
 .navbar{
 left:0;
+top:0;
 }
 
 /* 🔥 CONTENIDO */
@@ -178,11 +187,13 @@ margin-left:0;
 padding-top:80px;
 }
 
+/* FOOTER */
 .footer-app{
 left:0;
 width:100%;
 }
 
+/* BOTÓN MENU */
 .menu-btn{
 display:block;
 }
@@ -194,6 +205,11 @@ font-size:14px;
 
 .nav-center{
 font-size:14px;
+}
+
+/* 🔥 FIX DEFINITIVO LÍNEA BLANCA */
+body{
+background:#1e293b;
 }
 
 }
