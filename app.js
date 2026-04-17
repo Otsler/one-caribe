@@ -68,19 +68,55 @@ document.querySelectorAll(".vista").forEach(v=>v.style.display="none");
 document.getElementById(id).style.display="block";
 }
 
-// ================= PERMISOS =================
 function puedeAcceder(id){
 
-let p = JSON.parse(localStorage.getItem("permisos"));
-if(!p) return false;
+let permisos = JSON.parse(localStorage.getItem("permisos"));
+let rol = localStorage.getItem("rol");
 
-return {
-entradas:p.entradas,
-salidas:p.salidas,
-inventario:p.inventario,
-config:p.config,
-usuarios:p.usuarios
-}[id] || false;
+if(!permisos || Object.keys(permisos).length === 0){
+
+if(rol==="Admin"){
+permisos = {
+entradas:true,
+salidas:true,
+inventario:true,
+config:true,
+usuarios:true
+};
+}
+
+if(rol==="Supervisor"){
+permisos = {
+entradas:true,
+salidas:true,
+inventario:true,
+config:false,
+usuarios:false
+};
+}
+
+if(rol==="Operador"){
+permisos = {
+entradas:true,
+salidas:true,
+inventario:true,
+config:false,
+usuarios:false
+};
+}
+
+localStorage.setItem("permisos", JSON.stringify(permisos));
+}
+
+let mapa = {
+entradas: permisos.entradas,
+salidas: permisos.salidas,
+inventario: permisos.inventario,
+config: permisos.config,
+usuarios: permisos.usuarios
+};
+
+return mapa[id] || false;
 }
 
 // ================= ADMIN =================
