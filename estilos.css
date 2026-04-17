@@ -1,12 +1,10 @@
-/* ===== RESET GENERAL ===== */
+/* ===== RESET ===== */
 html, body {
 margin:0;
 padding:0;
 overflow-x:hidden;
 font-family:Arial;
-
-/* 🔥 evita línea blanca en móvil */
-background:#1e293b;
+background:#1e293b; /* 🔥 cubre toda la parte superior */
 }
 
 /* ===== NAVBAR ===== */
@@ -18,11 +16,15 @@ display:flex;
 align-items:center;
 justify-content:space-between;
 
+/* 🔥 FIX REAL */
 position:fixed;
 top:0;
 left:200px;
 right:0;
 z-index:999;
+
+/* 🔥 CLAVE: cubre safe area */
+padding-top: calc(15px + env(safe-area-inset-top));
 }
 
 /* IZQUIERDA */
@@ -79,10 +81,11 @@ background:#1e293b;
 .content{
 margin-left:200px;
 padding:20px;
-padding-top:80px;
-transition:0.3s;
 
-/* 🔥 fondo real del contenido */
+/* 🔥 BAJA EL CONTENIDO + safe area */
+padding-top: calc(80px + env(safe-area-inset-top));
+
+transition:0.3s;
 background:#f1f5f9;
 min-height:100vh;
 }
@@ -175,16 +178,14 @@ left:-220px;
 left:0;
 }
 
-/* 🔥 NAVBAR EN MÓVIL */
+/* 🔥 NAVBAR */
 .navbar{
 left:0;
-top:0;
 }
 
 /* 🔥 CONTENIDO */
 .content{
 margin-left:0;
-padding-top:80px;
 }
 
 /* FOOTER */
@@ -193,7 +194,7 @@ left:0;
 width:100%;
 }
 
-/* BOTÓN MENU */
+/* MENU */
 .menu-btn{
 display:block;
 }
@@ -205,11 +206,6 @@ font-size:14px;
 
 .nav-center{
 font-size:14px;
-}
-
-/* 🔥 FIX DEFINITIVO LÍNEA BLANCA */
-body{
-background:#1e293b;
 }
 
 }
