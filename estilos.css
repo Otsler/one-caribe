@@ -13,8 +13,12 @@ display:flex;
 align-items:center;
 justify-content:space-between;
 
-/* 🔥 SOLUCIÓN CLAVE */
-margin-left:200px;
+/* 🔥 SOLUCIÓN REAL */
+position:fixed;
+top:0;
+left:200px;
+right:0;
+z-index:999;
 }
 
 /* IZQUIERDA */
@@ -27,7 +31,7 @@ gap:10px;
 .logo{
 font-weight:bold;
 font-size:16px;
-white-space:nowrap; /* 🔥 evita que se corte */
+white-space:nowrap;
 }
 
 /* CENTRO */
@@ -52,7 +56,7 @@ color:white;
 top:0;
 left:0;
 transition:0.3s;
-z-index:1000; /* 🔥 evita que tape cosas raras */
+z-index:1000;
 }
 
 .sidebar a{
@@ -71,6 +75,7 @@ background:#1e293b;
 .content{
 margin-left:200px;
 padding:20px;
+padding-top:80px; /* 🔥 BAJA EL CONTENIDO */
 transition:0.3s;
 }
 
@@ -162,8 +167,15 @@ left:-220px;
 left:0;
 }
 
+/* 🔥 NAVBAR EN MÓVIL */
+.navbar{
+left:0;
+}
+
+/* 🔥 CONTENIDO */
 .content{
 margin-left:0;
+padding-top:80px;
 }
 
 .footer-app{
@@ -175,12 +187,7 @@ width:100%;
 display:block;
 }
 
-/* 🔥 CLAVE: navbar vuelve a normal */
-.navbar{
-margin-left:0;
-}
-
-/* Ajustes navbar en móvil */
+/* Ajustes */
 .logo{
 font-size:14px;
 }
