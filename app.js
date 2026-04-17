@@ -9,6 +9,7 @@ cargarConfig();
 verUsuarios();
 mostrar("entradas");
 setUserInfo();
+aplicarPermisosMenu();
 }
 
 function checkAuth(){
@@ -288,7 +289,6 @@ let rol=rolN.value;
 
 if(!u||!c) return alert("Complete campos");
 
-// 🔥 DEFINIR PERMISOS SEGÚN ROL
 let permisos = {};
 
 if(rol==="Admin"){
@@ -379,13 +379,20 @@ db.collection("usuarios").doc(id).delete();
 
 function puedeAcceder(id){
 
-let rol=localStorage.getItem("rol");
+let permisos = JSON.parse(localStorage.getItem("permisos"));
 
-if(rol==="Admin") return true;
-if(rol==="Supervisor") return id!=="config" && id!=="usuarios";
-if(rol==="Operador") return id==="entradas"||id==="salidas";
+if(!permisos) return false;
 
-return false;
+// 🔥 MAPEAR VISTAS
+let mapa = {
+entradas: permisos.entradas,
+salidas: permisos.salidas,
+inventario: permisos.inventario,
+config: permisos.config,
+usuarios: permisos.usuarios
+};
+
+return mapa[id] || false;
 }
 
 function pedirClaveAdmin(){
@@ -466,7 +473,6 @@ Estibas: estibas
 
 let ws = XLSX.utils.json_to_sheet(data);
 
-// 🔥 ANCHO DE COLUMNAS (PRO)
 ws["!cols"] = [
 { wch: 25 },
 { wch: 15 },
@@ -649,4 +655,23 @@ w.print();
 });
 
 });
+}
+
+function aplicarPermisosMenu(){
+
+let permisos = JSON.parse(localStorage.getItem("permisos"));
+
+if(!permisos) return;
+
+if(!permisos.config){
+document.querySelector("[onclick=\"mostrar('config')\"]").style.display="none";
+}
+
+if(!permisos.usuarios){
+document.querySelector("[onclick=\"mostrar('usuarios')\"]").style.display="none";
+}
+
+if(!permisos.inventario){
+document.querySelector("[onclick=\"mostrar('inventario')\"]").style.display="none";
+}
 }
