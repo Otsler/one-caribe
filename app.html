@@ -17,15 +17,10 @@
 <body onload="initApp()">
 
 <div class="navbar">
-
 <button class="menu-btn" onclick="toggleMenu()">☰</button>
-
 <div><b>ONE CARIBE</b></div>
-
 <div id="userInfo"></div>
-
 <div onclick="logout()" style="cursor:pointer;">Cerrar sesión</div>
-
 </div>
 
 <div class="sidebar" id="sidebar">
@@ -39,6 +34,7 @@
 <div class="content">
 <div class="card">
 
+<!-- ENTRADAS -->
 <div id="entradas" class="vista">
 <h3>Entradas</h3>
 
@@ -56,6 +52,7 @@
 </table>
 </div>
 
+<!-- SALIDAS -->
 <div id="salidas" class="vista" style="display:none;">
 <h3>Salidas</h3>
 
@@ -73,6 +70,7 @@
 </table>
 </div>
 
+<!-- INVENTARIO -->
 <div id="inventario" class="vista" style="display:none;">
 <h3>Inventario</h3>
 
@@ -90,8 +88,11 @@
 </thead>
 <tbody id="tablaInventario"></tbody>
 </table>
+
+<div id="totales"></div>
 </div>
 
+<!-- CONFIG -->
 <div id="config" class="vista" style="display:none;">
 <h3>Config Estibas</h3>
 <table><tbody id="tablaConfig"></tbody></table>
@@ -103,6 +104,7 @@
 <button onclick="limpiar('inventario')">🗑 Inventario</button>
 </div>
 
+<!-- USUARIOS -->
 <div id="usuarios" class="vista" style="display:none;">
 <h3>Usuarios</h3>
 
@@ -126,9 +128,6 @@
 </div>
 
 </div>
-<div style="text-align:center; margin-top:30px; color:#555; font-size:14px;">
-© 2026 ONE CARIBE | Desarrollado por: <b>Otsler Suarez - 3028592985</b>
-</div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -147,36 +146,15 @@ const db = firebase.firestore();
 
 <script src="data.js"></script>
 <script src="app.js"></script>
-  
-<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
 <script>
 function toggleMenu(){
-let sidebar = document.getElementById("sidebar");
-sidebar.classList.toggle("active");
+document.getElementById("sidebar").classList.toggle("active");
 }
 
 function cerrarMenu(){
-let sidebar = document.getElementById("sidebar");
-sidebar.classList.remove("active");
+document.getElementById("sidebar").classList.remove("active");
 }
-</script>
-
-<script>
-document.addEventListener("click", function(e){
-
-let sidebar = document.getElementById("sidebar");
-let btn = document.querySelector(".menu-btn");
-
-if(
-sidebar.classList.contains("active") &&
-!sidebar.contains(e.target) &&
-!btn.contains(e.target)
-){
-sidebar.classList.remove("active");
-}
-
-});
 </script>
 
 </body>
