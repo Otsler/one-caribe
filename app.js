@@ -358,14 +358,20 @@ function pedirClaveAdmin(){
 let clave=prompt("Clave admin:");
 if(!clave) return false;
 
-let usuarios=JSON.parse(localStorage.getItem("usuarios"))||[];
+db.collection("usuarios")
+.where("rol","==","Admin")
+.where("clave","==",clave)
+.get()
+.then(snap=>{
 
-let admin=usuarios.find(x=>x.rol==="Admin" && x.clave===clave);
-
-if(admin) return true;
-
+if(!snap.empty){
+return true;
+}else{
 alert("Clave incorrecta");
 return false;
+}
+
+});
 }
 
 function logout(){
