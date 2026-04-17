@@ -21,20 +21,42 @@ function setUserInfo(){
 userInfo.innerText = localStorage.getItem("usuario");
 }
 
-async function mostrar(id){
+function mostrar(id){
 
 if(!puedeAcceder(id)){
 alert("❌ No tienes permiso");
 return;
 }
 
+// 🔥 VALIDACIÓN ADMIN SOLO PARA ESTAS VISTAS
 if(id==="config" || id==="usuarios"){
-let ok = await pedirClaveAdmin();
-if(!ok) return;
-}
+function validarAdminFirebase(id){
 
+let clave = prompt("Clave admin:");
+if(!clave) return;
+
+db.collection("usuarios")
+.where("rol","==","Admin")
+.where("clave","==",clave)
+.get()
+.then(snap=>{
+
+if(!snap.empty){
+
+// ✅ SI ES CORRECTO → ABRIR VISTA
 document.querySelectorAll(".vista").forEach(v=>v.style.display="none");
 document.getElementById(id).style.display="block";
+
+}else{
+alert("❌ Clave incorrecta");
+}
+
+})
+.catch(err=>{
+console.error(err);
+alert("Error validando admin");
+});
+
 }
 // ================= SELECTS =================
 function cargarSelects(){
