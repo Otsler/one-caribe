@@ -77,6 +77,7 @@ btn.innerText = "Ingresando...";
 
 try{
 
+// 🔥 BUSCAR EN SUCURSALES
 let sucursales = ["Barranquilla","Galapa"];
 
 for(let s of sucursales){
@@ -100,6 +101,25 @@ localStorage.setItem("permisos", JSON.stringify(user.permisos || {}));
 window.location.href="app.html";
 return;
 }
+}
+
+// 🔥 BUSCAR EN SISTEMA ANTIGUO
+let oldSnap = await db.collection("usuarios")
+.where("usuario","==",u)
+.where("clave","==",c)
+.get();
+
+if(!oldSnap.empty){
+
+let user = oldSnap.docs[0].data();
+
+localStorage.setItem("usuario", u);
+localStorage.setItem("rol", user.rol);
+localStorage.setItem("sucursal", "Barranquilla");
+localStorage.setItem("permisos", JSON.stringify(user.permisos || {}));
+
+window.location.href="app.html";
+return;
 }
 
 alert("❌ Credenciales incorrectas");
