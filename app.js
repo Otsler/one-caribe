@@ -1,3 +1,10 @@
+// ================= SUCURSAL =================
+function sucursalDB(){
+return db.collection("sucursales")
+.doc(localStorage.getItem("sucursal"));
+}
+
+// ================= INIT =================
 function initApp(){
 
 if(!localStorage.getItem("sucursal")){
@@ -15,10 +22,10 @@ cargarConfig();
 verUsuarios();
 
 aplicarPermisosMenu();
-
 mostrar("entradas");
 }
 
+// ================= AUTH =================
 function checkAuth(){
 
 if(!localStorage.getItem("usuario")){
@@ -30,62 +37,71 @@ if(!localStorage.getItem("permisos")){
 alert("Sesión inválida");
 location.href="index.html";
 }
-
 }
 
+// ================= USER =================
 function setUserInfo(){
-
-let usuario = localStorage.getItem("usuario");
-let sucursal = localStorage.getItem("sucursal");
-
-userInfo.innerText = usuario + " - " + sucursal;
+userInfo.innerText =
+localStorage.getItem("usuario") + " - " +
+localStorage.getItem("sucursal");
 }
 
+// ================= UI =================
 function mostrar(id){
 
-// 🔥 VALIDAR PERMISOS
 if(!puedeAcceder(id)){
 alert("❌ No tienes permiso");
 return;
 }
 
-if((id==="config" || id==="usuarios") && puedeAcceder(id)){
-if(!pedirClaveAdmin()) return;
+if((id==="config"||id==="usuarios")){
+pedirClaveAdmin().then(ok=>{
+if(!ok) return;
+
+document.querySelectorAll(".vista").forEach(v=>v.style.display="none");
+document.getElementById(id).style.display="block";
+});
+return;
 }
 
 document.querySelectorAll(".vista").forEach(v=>v.style.display="none");
-
-let vista = document.getElementById(id);
-if(vista){
-vista.style.display="block";
+document.getElementById(id).style.display="block";
 }
 
+// ================= PERMISOS =================
+function puedeAcceder(id){
+
+let p = JSON.parse(localStorage.getItem("permisos"));
+if(!p) return false;
+
+return {
+entradas:p.entradas,
+salidas:p.salidas,
+inventario:p.inventario,
+config:p.config,
+usuarios:p.usuarios
+}[id] || false;
 }
 
-function cargarSelects(){
-llenar("productoE","referenciaE");
-llenar("productoS","referenciaS");
+// ================= ADMIN =================
+async function pedirClaveAdmin(){
+
+let clave = prompt("Clave admin:");
+if(!clave) return false;
+
+let suc = localStorage.getItem("sucursal");
+
+let snap = await db.collection("sucursales")
+.doc(suc)
+.collection("usuarios")
+.where("rol","==","Admin")
+.where("clave","==",clave)
+.get();
+
+return !snap.empty;
 }
 
-function llenar(p,r){
-let prod=document.getElementById(p);
-let ref=document.getElementById(r);
-
-prod.innerHTML="";
-catalogo.productos.forEach(x=>{
-prod.innerHTML+=`<option>${x}</option>`;
-});
-
-prod.onchange=()=>{
-ref.innerHTML="";
-catalogo.referencias[prod.value].forEach(y=>{
-ref.innerHTML+=`<option>${y}</option>`;
-});
-};
-
-prod.onchange();
-}
-
+// ================= ENTRADAS =================
 function entrada(){
 
 let p=productoE.value;
@@ -94,7 +110,7 @@ let pac=parseInt(pacasE.value);
 
 if(!pac) return alert("Ingrese cantidad");
 
-db.collection("entradas").add({
+sucursalDB().collection("entradas").add({
 fecha:new Date().toLocaleString(),
 producto:p,
 referencia:r,
@@ -105,29 +121,52 @@ usuario:localStorage.getItem("usuario")
 actualizarInventario(p,r,pac);
 
 pacasE.value="";
-alert("Entrada registrada");
 }
 
+// ================= INVENTARIO =================
+function actualizarInventario(p,r,pac){
+
+let clave=p+"_"+r;
+
+sucursalDB().collection("inventario").doc(clave).get()
+.then(doc=>{
+
+if(!doc.exists){
+sucursalDB().collection("inventario").doc(clave).set({
+producto:p,
+referencia:r,
+pacas:pac
+});
+}else{
+let d=doc.data();
+sucursalDB().collection("inventario").doc(clave).update({
+pacas:d.pacas+pac
+});
+}
+});
+}
+
+// ================= SALIDAS =================
 function salida(){
 
 let p=productoS.value;
 let r=referenciaS.value;
 let pac=parseInt(pacasS.value);
 
-if(!pac) return alert("Ingrese cantidad");
+if(!pac) return;
 
-let clave = p+"_"+r;
+let clave=p+"_"+r;
 
-db.collection("inventario").doc(clave).get()
+sucursalDB().collection("inventario").doc(clave).get()
 .then(doc=>{
 
 if(!doc.exists) return alert("Sin inventario");
 
-let data=doc.data();
+let d=doc.data();
 
-if(data.pacas<pac) return alert("No hay suficiente");
+if(d.pacas<pac) return alert("No hay suficiente");
 
-db.collection("salidas").add({
+sucursalDB().collection("salidas").add({
 fecha:new Date().toLocaleString(),
 producto:p,
 referencia:r,
@@ -135,23 +174,18 @@ pacas:pac,
 usuario:localStorage.getItem("usuario")
 });
 
-db.collection("inventario").doc(clave).update({
-pacas:data.pacas-pac
+sucursalDB().collection("inventario").doc(clave).update({
+pacas:d.pacas-pac
 });
-
-pacasS.value="";
-alert("Salida registrada");
-
 });
 }
 
+// ================= VER DATOS =================
 function verEntradas(){
-
-db.collection("entradas").orderBy("fecha","desc")
-.onSnapshot(snap=>{
+sucursalDB().collection("entradas").onSnapshot(s=>{
 tablaEntradas.innerHTML="";
-snap.forEach(doc=>{
-let x=doc.data();
+s.forEach(d=>{
+let x=d.data();
 tablaEntradas.innerHTML+=`
 <tr>
 <td>${x.fecha}</td>
@@ -165,12 +199,10 @@ tablaEntradas.innerHTML+=`
 }
 
 function verSalidas(){
-
-db.collection("salidas").orderBy("fecha","desc")
-.onSnapshot(snap=>{
+sucursalDB().collection("salidas").onSnapshot(s=>{
 tablaSalidas.innerHTML="";
-snap.forEach(doc=>{
-let x=doc.data();
+s.forEach(d=>{
+let x=d.data();
 tablaSalidas.innerHTML+=`
 <tr>
 <td>${x.fecha}</td>
@@ -183,519 +215,35 @@ tablaSalidas.innerHTML+=`
 });
 }
 
-function actualizarInventario(p,r,pac){
-
-let clave = p+"_"+r;
-
-db.collection("inventario").doc(clave).get()
-.then(doc=>{
-
-if(!doc.exists){
-
-db.collection("inventario").doc(clave).set({
-producto:p,
-referencia:r,
-pacas:pac
-});
-
-}else{
-
-let data=doc.data();
-
-db.collection("inventario").doc(clave).update({
-pacas:data.pacas+pac
-});
-
-}
-
-});
-}
-
 function verInventario(){
-
-db.collection("inventario").onSnapshot(snap=>{
-
+sucursalDB().collection("inventario").onSnapshot(s=>{
 tablaInventario.innerHTML="";
-let total=0;
-
-snap.forEach(doc=>{
-let x=doc.data();
-
-total+=x.pacas;
-
+s.forEach(d=>{
+let x=d.data();
 tablaInventario.innerHTML+=`
 <tr>
 <td>${x.producto}</td>
 <td>${x.referencia}</td>
 <td>${x.pacas}</td>
-<td id="estiba-${doc.id}">0</td>
-</tr>`;
-
-calcularEstibas(doc.id,x.producto,x.referencia,x.pacas);
-
-});
-
-totales.innerHTML="TOTAL PACAS: "+total;
-
-});
-}
-
-function cargarConfig(){
-
-db.collection("estibas").onSnapshot(snap=>{
-
-let conf=[];
-snap.forEach(d=>conf.push(d.data()));
-
-let html="";
-
-catalogo.productos.forEach(p=>{
-catalogo.referencias[p].forEach(r=>{
-
-let item=conf.find(x=>x.producto==p && x.referencia==r);
-
-html+=`
-<tr>
-<td>${p}</td>
-<td>${r}</td>
-<td><input id="c-${p}-${r}" value="${item?item.pacas:''}"></td>
-<td><button onclick="guardarFila('${p}','${r}')">Guardar</button></td>
-</tr>`;
-
-});
-});
-
-tablaConfig.innerHTML=html;
-
-});
-}
-
-function guardarFila(p,r){
-
-let val=parseInt(document.getElementById(`c-${p}-${r}`).value);
-if(!val) return alert("Ingrese valor");
-
-let clave=p+"_"+r;
-
-db.collection("estibas").doc(clave).set({
-producto:p,
-referencia:r,
-pacas:val
-});
-
-alert("Guardado");
-}
-
-function limpiar(tipo){
-
-let clave=document.getElementById("claveAdmin").value;
-
-let usuarios=JSON.parse(localStorage.getItem("usuarios"))||[];
-let admin=usuarios.find(x=>x.rol==="Admin" && x.clave===clave);
-
-if(!admin) return alert("Clave incorrecta");
-if(!confirm("¿Eliminar datos?")) return;
-
-db.collection(tipo).get().then(snap=>{
-snap.forEach(doc=>{
-db.collection(tipo).doc(doc.id).delete();
-});
-});
-
-alert("Eliminado");
-}
-
-function crearUsuario(){
-
-let u=userN.value.trim();
-let c=passN.value.trim();
-let rol=rolN.value;
-
-if(!u||!c) return alert("Complete campos");
-
-let permisos = {};
-
-if(rol==="Admin"){
-permisos = {
-entradas:true,
-salidas:true,
-inventario:true,
-config:true,
-usuarios:true
-};
-}
-
-if(rol==="Supervisor"){
-permisos = {
-entradas:true,
-salidas:true,
-inventario:true,
-config:false,
-usuarios:false
-};
-}
-
-if(rol==="Operador"){
-permisos = {
-entradas:true,
-salidas:true,
-inventario:false,
-config:false,
-usuarios:false
-};
-}
-
-sucursalDB().collection("usuarios").add({
-usuario:u,
-clave:c,
-rol:rol,
-permisos:permisos
-});
-
-alert("Usuario creado");
-}
-function verUsuarios(){
-
-db.collection("usuarios").onSnapshot(snap=>{
-
-tablaUsuarios.innerHTML="";
-
-snap.forEach(doc=>{
-let u=doc.data();
-
-tablaUsuarios.innerHTML+=`
-<tr>
-<td>${u.usuario}</td>
-
-<td>
-<input id="pass-${doc.id}" value="${u.clave}">
-</td>
-
-<td>${u.rol}</td>
-
-<td>
-<button onclick="guardarUsuario('${doc.id}')">💾</button>
-<button onclick="eliminarUsuario('${doc.id}')">🗑</button>
-</td>
+<td>${(x.pacas/42).toFixed(2)}</td>
 </tr>`;
 });
-
-});
-}
-function guardarUsuario(id){
-
-let nueva=document.getElementById("pass-"+id).value;
-
-if(!nueva) return alert("Ingrese clave");
-
-db.collection("usuarios").doc(id).update({
-clave:nueva
-});
-
-alert("Contraseña actualizada");
-
-}
-
-function eliminarUsuario(id){
-if(!confirm("¿Eliminar usuario?")) return;
-db.collection("usuarios").doc(id).delete();
-}
-
-function puedeAcceder(id){
-
-let permisos = JSON.parse(localStorage.getItem("permisos"));
-
-if(!permisos) return false;
-
-// 🔥 MAPEAR VISTAS
-let mapa = {
-entradas: permisos.entradas,
-salidas: permisos.salidas,
-inventario: permisos.inventario,
-config: permisos.config,
-usuarios: permisos.usuarios
-};
-
-return mapa[id] || false;
-}
-
-function pedirClaveAdmin(){
-
-let clave=prompt("Clave admin:");
-if(!clave) return false;
-
-let usuarios=JSON.parse(localStorage.getItem("usuarios"))||[];
-
-let admin=usuarios.find(x=>x.rol==="Admin" && x.clave===clave);
-
-if(admin) return true;
-
-alert("Clave incorrecta");
-return false;
-}
-
-function logout(){
-
-localStorage.removeItem("usuario");
-localStorage.removeItem("rol");
-
-location.href="index.html";
-
-}
-function calcularEstibas(id,p,r,pac){
-
-db.collection("estibas").doc(p+"_"+r).get()
-.then(doc=>{
-
-if(!doc.exists){
-document.getElementById("estiba-"+id).innerText="0";
-return;
-}
-
-let conf=doc.data();
-
-let est=(pac/conf.pacas).toFixed(2);
-
-document.getElementById("estiba-"+id).innerText=est;
-
-});
-}
-window.descargarInventario = async function(){
-
-try{
-
-if(typeof XLSX === "undefined"){
-alert("❌ Error: librería Excel no cargó");
-return;
-}
-
-let snap = await db.collection("inventario").get();
-
-let data = [];
-
-for (let doc of snap.docs){
-
-let x = doc.data();
-
-let confDoc = await db.collection("estibas").doc(x.producto+"_"+x.referencia).get();
-
-let estibas = 0;
-
-if(confDoc.exists){
-let conf = confDoc.data();
-estibas = (x.pacas / conf.pacas).toFixed(2);
-}
-
-data.push({
-Producto: x.producto,
-Referencia: x.referencia,
-Pacas: x.pacas,
-Estibas: estibas
-});
-
-}
-
-let ws = XLSX.utils.json_to_sheet(data);
-
-ws["!cols"] = [
-{ wch: 25 },
-{ wch: 15 },
-{ wch: 10 },
-{ wch: 10 }
-];
-
-let wb = XLSX.utils.book_new();
-XLSX.utils.book_append_sheet(wb, ws, "Inventario");
-
-// 🔥 DESCARGAR
-XLSX.writeFile(wb, "Inventario_ONE_CARIBE.xlsx");
-
-}catch(error){
-
-console.error(error);
-alert("❌ Error al descargar: " + error.message);
-
-}
-
-}
-function imprimirInventario(){
-
-db.collection("inventario").get().then(snap=>{
-
-let total = 0;
-let totalEstibas = 0;
-let promesas = [];
-
-snap.forEach(doc=>{
-
-let x = doc.data();
-total += x.pacas;
-
-let prom = db.collection("estibas").doc(x.producto+"_"+x.referencia).get()
-.then(confDoc=>{
-
-let estibas = 0;
-
-if(confDoc.exists){
-let conf = confDoc.data();
-estibas = (x.pacas / conf.pacas).toFixed(2);
-
-totalEstibas += parseFloat(estibas);
-}
-
-return `
-<tr>
-<td>${x.producto}</td>
-<td>${x.referencia}</td>
-<td>${x.pacas}</td>
-<td>${estibas}</td>
-</tr>
-`;
-
-});
-
-promesas.push(prom);
-
-});
-
-Promise.all(promesas).then(resultados=>{
-
-let filas = resultados.join("");
-
-let contenido = `
-<html>
-<head>
-<title>Inventario ONE CARIBE</title>
-
-<style>
-
-body{
-font-family:Arial;
-padding:30px;
-color:#111;
-}
-
-.header{
-display:flex;
-justify-content:space-between;
-align-items:center;
-margin-bottom:20px;
-}
-
-.titulo{
-font-size:22px;
-font-weight:bold;
-}
-
-.sub{
-font-size:13px;
-color:#555;
-}
-
-table{
-width:90%;
-margin:auto;
-border-collapse:collapse;
-}
-
-th{
-background:#1e293b;
-color:white;
-padding:12px;
-text-align:center;
-}
-
-td{
-padding:12px;
-border-bottom:1px solid #ddd;
-text-align:center;
-}
-
-tr:nth-child(even){
-background:#f9fafb;
-}
-
-.total{
-margin-top:20px;
-text-align:right;
-font-weight:bold;
-font-size:15px;
-}
-
-.footer{
-margin-top:30px;
-text-align:center;
-font-size:12px;
-color:#555;
-}
-
-</style>
-
-</head>
-
-<body>
-
-<div class="header">
-<div>
-<div class="titulo">ONE CARIBE</div>
-<div class="sub">Reporte de Inventario</div>
-</div>
-
-<div class="sub">
-${new Date().toLocaleString()}
-</div>
-</div>
-
-<table>
-<tr>
-<th>Producto</th>
-<th>Referencia</th>
-<th>Pacas</th>
-<th>Estibas</th>
-</tr>
-
-${filas}
-
-</table>
-
-<div class="total">
-TOTAL PACAS: ${total}<br>
-TOTAL ESTIBAS: ${totalEstibas.toFixed(2)}
-</div>
-
-<div class="footer">
-© 2026 ONE CARIBE
-</div>
-
-</body>
-</html>
-`;
-
-let w = window.open("");
-w.document.write(contenido);
-w.document.close();
-w.print();
-
-});
-
 });
 }
 
+// ================= MENU =================
 function aplicarPermisosMenu(){
 
-let permisos = JSON.parse(localStorage.getItem("permisos"));
+let p=JSON.parse(localStorage.getItem("permisos"));
+if(!p) return;
 
-if(!permisos) return;
-
-if(!permisos.config){
-document.querySelector("[onclick=\"mostrar('config')\"]").style.display="none";
+if(!p.config) document.querySelector("[onclick=\"mostrar('config')\"]").style.display="none";
+if(!p.usuarios) document.querySelector("[onclick=\"mostrar('usuarios')\"]").style.display="none";
+if(!p.inventario) document.querySelector("[onclick=\"mostrar('inventario')\"]").style.display="none";
 }
 
-if(!permisos.usuarios){
-document.querySelector("[onclick=\"mostrar('usuarios')\"]").style.display="none";
-}
-
-if(!permisos.inventario){
-document.querySelector("[onclick=\"mostrar('inventario')\"]").style.display="none";
-}
+// ================= LOGOUT =================
+function logout(){
+localStorage.clear();
+location.href="index.html";
 }
