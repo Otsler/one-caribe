@@ -353,16 +353,17 @@ if(rol==="Operador") return id==="entradas"||id==="salidas"||id==="inventario";
 return false;
 }
 
-function pedirClaveAdmin(){
+async function pedirClaveAdmin(){
 
-let clave=prompt("Clave admin:");
+let clave = prompt("Clave admin:");
 if(!clave) return false;
 
-db.collection("usuarios")
+try{
+
+let snap = await db.collection("usuarios")
 .where("rol","==","Admin")
 .where("clave","==",clave)
-.get()
-.then(snap=>{
+.get();
 
 if(!snap.empty){
 return true;
@@ -371,7 +372,11 @@ alert("Clave incorrecta");
 return false;
 }
 
-});
+}catch(e){
+console.error(e);
+alert("Error validando admin");
+return false;
+}
 }
 
 function logout(){
