@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link rel="icon" type="image/x-icon" href="One.ico">
+
+</head><!DOCTYPE html>
+<html>
+
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link rel="icon" type="image/x-icon" href="One.ico">
+
+</head>
+
+<link rel="stylesheet" href="./estilos.css?v=2">
+
+
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1e293b">
+
+<script src="https://unpkg.com/html5-qrcode"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</head>
+
+<body onload="initApp()">
+
+<div class="navbar">
+
+<button class="menu-btn" onclick="toggleMenu()">☰</button>
+
+<div><b>ONE CARIBE</b></div>
+
+<div id="userInfo"></div>
+
+<div onclick="logout()" style="cursor:pointer;">Cerrar sesión</div>
+
+</div>
+
+<div class="sidebar" id="sidebar">
+<a onclick="mostrar('entradas'); cerrarMenu()">📥 Entradas</a>
+<a onclick="mostrar('salidas'); cerrarMenu()">📤 Salidas</a>
+<a onclick="mostrar('inventario'); cerrarMenu()">📦 Inventario</a>
+<a onclick="mostrar('config'); cerrarMenu()">⚙️ Config</a>
+<a onclick="mostrar('usuarios'); cerrarMenu()">👥 Usuarios</a>
+</div>
+
+<div class="content">
+<div class="card">
+
+<div id="entradas" class="vista">
+<h3>Entradas</h3>
+
+<select id="productoE"></select>
+<select id="referenciaE"></select>
+<input id="pacasE" type="number" placeholder="Cantidad">
+
+<button onclick="entrada()">Guardar</button>
+
+<table>
+<thead>
+<tr><th>Fecha</th><th>Producto</th><th>Referencia</th><th>Pacas</th><th>Usuario</th></tr>
+</thead>
+<tbody id="tablaEntradas"></tbody>
+</table>
+</div>
+
+<div id="salidas" class="vista" style="display:none;">
+<h3>Salidas</h3>
+
+<select id="productoS"></select>
+<select id="referenciaS"></select>
+<input id="pacasS" type="number" placeholder="Cantidad">
+
+<button onclick="salida()">Guardar</button>
+
+<table>
+<thead>
+<tr><th>Fecha</th><th>Producto</th><th>Referencia</th><th>Pacas</th><th>Usuario</th></tr>
+</thead>
+<tbody id="tablaSalidas"></tbody>
+</table>
+</div>
+
+<div id="inventario" class="vista" style="display:none;">
+<h3>Inventario</h3>
+
+<button onclick="descargarInventario()">📥 Descargar</button>
+<button onclick="imprimirInventario()">🖨 Imprimir</button>
+
+<table>
+<thead>
+<tr>
+<th>Producto</th>
+<th>Referencia</th>
+<th>Pacas</th>
+<th>Estibas</th>
+</tr>
+</thead>
+<tbody id="tablaInventario"></tbody>
+</table>
+</div>
+
+<div id="config" class="vista" style="display:none;">
+<h3>Config Estibas</h3>
+<table><tbody id="tablaConfig"></tbody></table>
+
+<input id="claveAdmin" placeholder="Clave admin" type="password">
+
+<button onclick="limpiar('entradas')">🗑 Entradas</button>
+<button onclick="limpiar('salidas')">🗑 Salidas</button>
+<button onclick="limpiar('inventario')">🗑 Inventario</button>
+</div>
+
+<div id="usuarios" class="vista" style="display:none;">
+<h3>Usuarios</h3>
+
+<input id="userN" placeholder="Usuario">
+<input id="passN" placeholder="Clave">
+
+<select id="rolN">
+<option>Admin</option>
+<option>Supervisor</option>
+<option>Operador</option>
+</select>
+
+<button onclick="crearUsuario()">Crear</button>
+
+<table>
+<thead>
+<tr><th>Usuario</th><th>Clave</th><th>Rol</th><th></th></tr>
+</thead>
+<tbody id="tablaUsuarios"></tbody>
+</table>
+</div>
+
+</div>
+<div style="text-align:center; margin-top:30px; color:#555; font-size:14px;">
+© 2026 ONE CARIBE | Desarrollado por: <b>Otsler Suarez - 3028592985</b>
+</div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+<script>
+const firebaseConfig = {
+apiKey: "AIzaSy...",
+authDomain: "one-caribe.firebaseapp.com",
+projectId: "one-caribe"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+</script>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+  
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+
+<script>
+function toggleMenu(){
+let sidebar = document.getElementById("sidebar");
+sidebar.classList.toggle("active");
+}
+
+function cerrarMenu(){
+let sidebar = document.getElementById("sidebar");
+sidebar.classList.remove("active");
+}
+</script>
+
+<script>
+document.addEventListener("click", function(e){
+
+let sidebar = document.getElementById("sidebar");
+let btn = document.querySelector(".menu-btn");
+
+if(
+sidebar.classList.contains("active") &&
+!sidebar.contains(e.target) &&
+!btn.contains(e.target)
+){
+sidebar.classList.remove("active");
+}
+
+});
+</script>
+
+</body>
+</html>
