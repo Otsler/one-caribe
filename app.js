@@ -4,8 +4,11 @@ cargarSelects();
 verEntradas();
 verSalidas();
 verInventario();
-cargarConfig();
-verUsuarios();
+
+// ❌ COMENTA ESTO
+// cargarConfig();
+// verUsuarios();
+  
 mostrar("entradas");
 setUserInfo();
 }
@@ -124,7 +127,7 @@ function verEntradas(){
 
 db.collection("entradas").orderBy("fecha","desc")
 .onSnapshot(snap=>{
-tablaEntradas.innerHTML="";
+document.getElementById("tablaEntradas").innerHTML = "";
 snap.forEach(doc=>{
 let x=doc.data();
 tablaEntradas.innerHTML+=`
@@ -143,7 +146,7 @@ function verSalidas(){
 
 db.collection("salidas").orderBy("fecha","desc")
 .onSnapshot(snap=>{
-tablaSalidas.innerHTML="";
+document.getElementById("tablaSalidas").innerHTML = "";
 snap.forEach(doc=>{
 let x=doc.data();
 tablaSalidas.innerHTML+=`
@@ -190,7 +193,7 @@ function verInventario(){
 
 db.collection("inventario").onSnapshot(snap=>{
 
-tablaInventario.innerHTML="";
+document.getElementById("tablaInventario").innerHTML = "";
 let total=0;
 
 snap.forEach(doc=>{
@@ -236,7 +239,7 @@ html+=`
 });
 });
 
-tablaConfig.innerHTML=html;
+document.getElementById("tablaConfig").innerHTML = "";
 
 });
 }
@@ -295,7 +298,7 @@ function verUsuarios(){
 
 db.collection("usuarios").onSnapshot(snap=>{
 
-tablaUsuarios.innerHTML="";
+document.getElementById("tablaUsuarios").innerHTML = "";
 
 snap.forEach(doc=>{
 let u=doc.data();
