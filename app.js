@@ -288,13 +288,48 @@ let rol=rolN.value;
 
 if(!u||!c) return alert("Complete campos");
 
-db.collection("usuarios").add({usuario:u,clave:c,rol:rol});
+// 🔥 DEFINIR PERMISOS SEGÚN ROL
+let permisos = {};
 
-userN.value="";
-passN.value="";
-alert("Usuario creado");
+if(rol==="Admin"){
+permisos = {
+entradas:true,
+salidas:true,
+inventario:true,
+config:true,
+usuarios:true
+};
 }
 
+if(rol==="Supervisor"){
+permisos = {
+entradas:true,
+salidas:true,
+inventario:true,
+config:false,
+usuarios:false
+};
+}
+
+if(rol==="Operador"){
+permisos = {
+entradas:true,
+salidas:true,
+inventario:false,
+config:false,
+usuarios:false
+};
+}
+
+sucursalDB().collection("usuarios").add({
+usuario:u,
+clave:c,
+rol:rol,
+permisos:permisos
+});
+
+alert("Usuario creado");
+}
 function verUsuarios(){
 
 db.collection("usuarios").onSnapshot(snap=>{
