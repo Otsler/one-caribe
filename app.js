@@ -348,7 +348,7 @@ let rol=localStorage.getItem("rol");
 
 if(rol==="Admin") return true;
 if(rol==="Supervisor") return id!=="config" && id!=="usuarios";
-if(rol==="Operador") return id==="entradas"||id==="salidas";
+if(rol==="Operador") return id==="entradas"||id==="salidas"||id==="inventario";
 
 return false;
 }
