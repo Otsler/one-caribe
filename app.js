@@ -8,6 +8,7 @@ verInventario();
 cargarConfig();
 verUsuarios();
 mostrar("entradas");
+setUserInfo();
 }
 
 function checkAuth(){
@@ -20,7 +21,7 @@ function setUserInfo(){
 userInfo.innerText = localStorage.getItem("usuario");
 }
 
-function mostrar(id){
+async function mostrar(id){
 
 if(!puedeAcceder(id)){
 alert("❌ No tienes permiso");
@@ -28,14 +29,17 @@ return;
 }
 
 if(id==="config" || id==="usuarios"){
-if(!pedirClaveAdmin()) return;
+
+let ok = await pedirClaveAdmin();
+
+if(!ok) return;
 }
 
 document.querySelectorAll(".vista").forEach(v=>v.style.display="none");
 document.getElementById(id).style.display="block";
+
 }
 
-// ================= SELECTS =================
 function cargarSelects(){
 llenar("productoE","referenciaE");
 llenar("productoS","referenciaS");
@@ -347,26 +351,37 @@ let rol=localStorage.getItem("rol");
 
 if(rol==="Admin") return true;
 if(rol==="Supervisor") return id!=="config" && id!=="usuarios";
-if(rol==="Operador") return id==="entradas"||id==="salidas";
+if(rol==="Operador") return id!=="config" && id!=="usuarios";
 
 return false;
 }
 
-function pedirClaveAdmin(){
+async function pedirClaveAdmin(){
 
-let clave=prompt("Clave admin:");
+let clave = prompt("Clave admin:");
 if(!clave) return false;
 
-let usuarios=JSON.parse(localStorage.getItem("usuarios"))||[];
+try{
 
-let admin=usuarios.find(x=>x.rol==="Admin" && x.clave===clave);
+let snap = await db.collection("usuarios")
+.where("rol","==","Admin")
+.where("clave","==",clave)
+.get();
 
-if(admin) return true;
-
-alert("Clave incorrecta");
+if(!snap.empty){
+return true;
+}else{
+alert("❌ Clave incorrecta");
 return false;
 }
 
+}catch(e){
+console.error(e);
+alert("Error verificando clave");
+return false;
+}
+
+}
 function logout(){
 
 localStorage.removeItem("usuario");
