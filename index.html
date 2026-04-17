@@ -86,6 +86,8 @@ const db = firebase.firestore();
 
 async function login(){
 
+console.log("Login iniciado");
+
 let u = document.getElementById("usuario").value.trim();
 let c = document.getElementById("clave").value.trim();
 
@@ -94,11 +96,22 @@ alert("Ingrese datos");
 return;
 }
 
+if(typeof db === "undefined"){
+alert("Error: Firebase no está cargado");
+return;
+}
+
 try{
+
+let btn = document.querySelector("button");
+btn.disabled = true;
+btn.innerText = "Ingresando...";
 
 let sucursales = ["Barranquilla","Galapa"];
 
 for(let s of sucursales){
+
+console.log("Buscando en:", s);
 
 let snapshot = await db.collection("sucursales")
 .doc(s)
@@ -112,9 +125,9 @@ if(!snapshot.empty){
 let user = snapshot.docs[0].data();
 
 localStorage.setItem("usuario", u);
-localStorage.setItem("rol", user.rol);
+localStorage.setItem("rol", user.rol || "Operador");
 localStorage.setItem("sucursal", s);
-localStorage.setItem("permisos", JSON.stringify(user.permisos));
+localStorage.setItem("permisos", JSON.stringify(user.permisos || {}));
 
 window.location.href = "app.html";
 return;
@@ -124,10 +137,18 @@ return;
 
 alert("❌ Credenciales incorrectas");
 
+btn.disabled = false;
+btn.innerText = "Ingresar";
+
 }catch(err){
-console.error(err);
-alert("Error de conexión");
+
+console.error("ERROR:", err);
+alert("Error de conexión con la base de datos");
+
+let btn = document.querySelector("button");
+btn.disabled = false;
+btn.innerText = "Ingresar";
+
 }
 
 }
-</html>
