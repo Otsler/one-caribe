@@ -29,7 +29,11 @@ return;
 }
 
 if(id==="config" || id==="usuarios"){
-if(!pedirClaveAdmin()) return;
+
+window.vistaPendiente = id; // 🔥 guardamos la vista
+pedirClaveAdmin(); // 🔥 validación async
+
+return; // 🔥 detenemos flujo aquí
 }
 
 document.querySelectorAll(".vista").forEach(v=>v.style.display="none");
@@ -355,17 +359,30 @@ return false;
 
 function pedirClaveAdmin(){
 
-let clave=prompt("Clave admin:");
+let clave = prompt("Clave admin:");
 if(!clave) return false;
 
-let usuarios=JSON.parse(localStorage.getItem("usuarios"))||[];
+let permitido = false;
 
-let admin=usuarios.find(x=>x.rol==="Admin" && x.clave===clave);
+db.collection("usuarios")
+.where("rol","==","Admin")
+.where("clave","==",clave)
+.get()
+.then(snap=>{
 
-if(admin) return true;
+if(!snap.empty){
+permitido = true;
 
-alert("Clave incorrecta");
-return false;
+document.querySelectorAll(".vista").forEach(v=>v.style.display="none");
+window.vistaPendiente && document.getElementById(window.vistaPendiente).style.display="block";
+
+}else{
+alert("❌ Clave incorrecta");
+}
+
+});
+
+return false; // 🔥 IMPORTANTE
 }
 
 function logout(){
