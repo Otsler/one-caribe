@@ -107,8 +107,10 @@ return;
 
 let user = snapshot.docs[0].data();
 
-localStorage.setItem("usuario", user.usuario);
+localStorage.setItem("usuario", u);
 localStorage.setItem("rol", user.rol);
+localStorage.setItem("sucursal", s);
+localStorage.setItem("permisos", JSON.stringify(user.permisos));
 
 window.location.href = "app.html";
 
