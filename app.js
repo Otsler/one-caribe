@@ -14,7 +14,6 @@ function checkAuth(){
 if(!localStorage.getItem("usuario")){
 location.href="index.html";
 }
-}
 
 function setUserInfo(){
 document.getElementById("userInfo").innerText = localStorage.getItem("usuario");
@@ -29,17 +28,15 @@ return;
 
 if(id==="config" || id==="usuarios"){
 
-window.vistaPendiente = id; // 🔥 guardamos la vista
-pedirClaveAdmin(); // 🔥 validación async
-
-return; // 🔥 detenemos flujo aquí
+window.vistaPendiente = id;
+pedirClaveAdmin();
+return;
 }
 
 document.querySelectorAll(".vista").forEach(v=>v.style.display="none");
 document.getElementById(id).style.display="block";
 }
 
-// ================= SELECTS =================
 function cargarSelects(){
 llenar("productoE","referenciaE");
 llenar("productoS","referenciaS");
@@ -377,7 +374,7 @@ alert("❌ Clave incorrecta");
 
 });
 
-return false; // 🔥 IMPORTANTE
+return false;
 }
 
 function logout(){
