@@ -17,7 +17,7 @@ location.href="index.html";
 }
 
 function setUserInfo(){
-userInfo.innerText = localStorage.getItem("usuario");
+document.getElementById("userInfo").innerText = localStorage.getItem("usuario");
 }
 
 function mostrar(id){
@@ -213,10 +213,6 @@ calcularEstibas(doc.id,x.producto,x.referencia,x.pacas);
 
 });
 
-totales.innerHTML="TOTAL PACAS: "+total;
-
-});
-}
 
 function cargarConfig(){
 
