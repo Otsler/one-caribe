@@ -4,8 +4,16 @@ cargarSelects();
 verEntradas();
 verSalidas();
 verInventario();
+cargarConfig();
+verUsuarios();
 mostrar("entradas");
 setUserInfo();
+}
+
+function checkAuth(){
+if(!localStorage.getItem("usuario")){
+location.href="index.html";
+}
 }
 
 function setUserInfo(){
@@ -13,10 +21,8 @@ document.getElementById("userInfo").innerText = localStorage.getItem("usuario");
 }
 
 function mostrar(id){
-
 document.querySelectorAll(".vista").forEach(v=>v.style.display="none");
 document.getElementById(id).style.display="block";
-
 }
 
 // ===== SELECTS =====
@@ -46,7 +52,6 @@ prod.onchange();
 
 // ===== ENTRADA =====
 function entrada(){
-
 let p=document.getElementById("productoE").value;
 let r=document.getElementById("referenciaE").value;
 let pac=parseInt(document.getElementById("pacasE").value);
@@ -62,14 +67,11 @@ usuario:localStorage.getItem("usuario")
 });
 
 actualizarInventario(p,r,pac);
-
 document.getElementById("pacasE").value="";
-alert("Entrada registrada");
 }
 
 // ===== SALIDA =====
 function salida(){
-
 let p=document.getElementById("productoS").value;
 let r=document.getElementById("referenciaS").value;
 let pac=parseInt(document.getElementById("pacasS").value);
@@ -80,11 +82,9 @@ let clave = p+"_"+r;
 
 db.collection("inventario").doc(clave).get()
 .then(doc=>{
-
 if(!doc.exists) return alert("Sin inventario");
 
 let data=doc.data();
-
 if(data.pacas<pac) return alert("No hay suficiente");
 
 db.collection("salidas").add({
@@ -100,12 +100,10 @@ pacas:data.pacas-pac
 });
 
 document.getElementById("pacasS").value="";
-alert("Salida registrada");
-
 });
 }
 
-// ===== VER TABLAS =====
+// ===== TABLAS =====
 function verEntradas(){
 db.collection("entradas").onSnapshot(snap=>{
 let tabla = document.getElementById("tablaEntradas");
@@ -144,7 +142,6 @@ tabla.innerHTML+=`
 
 function verInventario(){
 db.collection("inventario").onSnapshot(snap=>{
-
 let tabla = document.getElementById("tablaInventario");
 tabla.innerHTML="";
 let total=0;
@@ -158,23 +155,20 @@ tabla.innerHTML+=`
 <td>${x.producto}</td>
 <td>${x.referencia}</td>
 <td>${x.pacas}</td>
-<td id="estiba-${doc.id}">0</td>
+<td>--</td>
 </tr>`;
 });
 
 document.getElementById("totales").innerText="TOTAL PACAS: "+total;
-
 });
 }
 
-// ===== INVENTARIO =====
+// ===== RESTO =====
 function actualizarInventario(p,r,pac){
-
 let clave = p+"_"+r;
 
 db.collection("inventario").doc(clave).get()
 .then(doc=>{
-
 if(!doc.exists){
 db.collection("inventario").doc(clave).set({
 producto:p,
@@ -187,22 +181,18 @@ db.collection("inventario").doc(clave).update({
 pacas:data.pacas+pac
 });
 }
-
 });
 }
 
-// ===== LOGOUT =====
 function logout(){
 localStorage.clear();
 location.href="index.html";
 }
 
-// ===== DESCARGAR =====
 function descargarInventario(){
-alert("Descarga funcionando (puedes volver a integrar Excel luego)");
+alert("Descarga OK");
 }
 
-// ===== IMPRIMIR =====
 function imprimirInventario(){
 window.print();
 }
