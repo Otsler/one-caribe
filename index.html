@@ -1,12 +1,8 @@
 <!DOCTYPE html>
 <html>
-
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-
-<link rel="icon" type="image/x-icon" href="One.ico">
-
-</head>
+<link rel="icon" href="One.ico">
 
 <style>
 body{
@@ -18,43 +14,25 @@ align-items:center;
 height:100vh;
 margin:0;
 }
-
 .box{
 background:white;
 padding:30px;
 border-radius:10px;
 width:300px;
-box-shadow:0 4px 10px rgba(0,0,0,0.2);
 }
-
-h2{
-text-align:center;
-margin-bottom:20px;
-}
-
 input{
 width:100%;
 padding:10px;
 margin:10px 0;
-border-radius:6px;
-border:1px solid #ccc;
 }
-
 button{
 width:100%;
 padding:10px;
 background:#2563eb;
 color:white;
 border:none;
-border-radius:6px;
-cursor:pointer;
-}
-
-button:hover{
-background:#1d4ed8;
 }
 </style>
-
 </head>
 
 <body>
@@ -67,10 +45,8 @@ background:#1d4ed8;
 
 <button onclick="login()">Ingresar</button>
 </div>
-<div style="position:absolute; bottom:15px; width:100%; text-align:center; color:white; font-size:13px;">
-© 2026 ONE CARIBE | Desarrollado por: <b>Otsler Suarez - 3028592985</b>
-</div>
 
+<!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
@@ -84,71 +60,59 @@ projectId: "one-caribe"
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
+// 🔥 LOGIN
 async function login(){
 
-console.log("Login iniciado");
-
-let u = document.getElementById("usuario").value.trim();
-let c = document.getElementById("clave").value.trim();
+let u = usuario.value.trim();
+let c = clave.value.trim();
 
 if(!u || !c){
 alert("Ingrese datos");
 return;
 }
 
-if(typeof db === "undefined"){
-alert("Error: Firebase no está cargado");
-return;
-}
-
-try{
-
 let btn = document.querySelector("button");
 btn.disabled = true;
 btn.innerText = "Ingresando...";
+
+try{
 
 let sucursales = ["Barranquilla","Galapa"];
 
 for(let s of sucursales){
 
-console.log("Buscando en:", s);
-
-let snapshot = await db.collection("sucursales")
+let snap = await db.collection("sucursales")
 .doc(s)
 .collection("usuarios")
 .where("usuario","==",u)
 .where("clave","==",c)
 .get();
 
-if(!snapshot.empty){
+if(!snap.empty){
 
-let user = snapshot.docs[0].data();
+let user = snap.docs[0].data();
 
 localStorage.setItem("usuario", u);
-localStorage.setItem("rol", user.rol || "Operador");
+localStorage.setItem("rol", user.rol);
 localStorage.setItem("sucursal", s);
 localStorage.setItem("permisos", JSON.stringify(user.permisos || {}));
 
-window.location.href = "app.html";
+window.location.href="app.html";
 return;
 }
-
 }
 
 alert("❌ Credenciales incorrectas");
 
-btn.disabled = false;
-btn.innerText = "Ingresar";
-
-}catch(err){
-
-console.error("ERROR:", err);
-alert("Error de conexión con la base de datos");
-
-let btn = document.querySelector("button");
-btn.disabled = false;
-btn.innerText = "Ingresar";
-
+}catch(e){
+console.error(e);
+alert("Error de conexión");
 }
 
+btn.disabled=false;
+btn.innerText="Ingresar";
 }
+</script>
+
+</body>
+</html>
