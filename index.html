@@ -84,7 +84,7 @@ projectId: "one-caribe"
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-function login(){
+async function login(){
 
 let u = document.getElementById("usuario").value.trim();
 let c = document.getElementById("clave").value.trim();
@@ -94,16 +94,20 @@ alert("Ingrese datos");
 return;
 }
 
-db.collection("usuarios")
+try{
+
+let sucursales = ["Barranquilla","Galapa"];
+
+for(let s of sucursales){
+
+let snapshot = await db.collection("sucursales")
+.doc(s)
+.collection("usuarios")
 .where("usuario","==",u)
 .where("clave","==",c)
-.get()
-.then(snapshot=>{
+.get();
 
-if(snapshot.empty){
-alert("❌ Credenciales incorrectas");
-return;
-}
+if(!snapshot.empty){
 
 let user = snapshot.docs[0].data();
 
@@ -113,15 +117,17 @@ localStorage.setItem("sucursal", s);
 localStorage.setItem("permisos", JSON.stringify(user.permisos));
 
 window.location.href = "app.html";
-
-})
-.catch(err=>{
-console.error(err);
-alert("Error de conexión");
-});
+return;
+}
 
 }
-</script>
 
-</body>
+alert("❌ Credenciales incorrectas");
+
+}catch(err){
+console.error(err);
+alert("Error de conexión");
+}
+
+}
 </html>
