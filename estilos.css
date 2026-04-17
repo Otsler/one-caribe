@@ -12,6 +12,9 @@ padding:15px;
 display:flex;
 align-items:center;
 justify-content:space-between;
+
+/* 🔥 SOLUCIÓN CLAVE */
+margin-left:200px;
 }
 
 /* IZQUIERDA */
@@ -24,6 +27,7 @@ gap:10px;
 .logo{
 font-weight:bold;
 font-size:16px;
+white-space:nowrap; /* 🔥 evita que se corte */
 }
 
 /* CENTRO */
@@ -35,6 +39,7 @@ text-align:center;
 /* DERECHA */
 .nav-right{
 cursor:pointer;
+white-space:nowrap;
 }
 
 /* ===== SIDEBAR ===== */
@@ -47,6 +52,7 @@ color:white;
 top:0;
 left:0;
 transition:0.3s;
+z-index:1000; /* 🔥 evita que tape cosas raras */
 }
 
 .sidebar a{
@@ -167,6 +173,11 @@ width:100%;
 
 .menu-btn{
 display:block;
+}
+
+/* 🔥 CLAVE: navbar vuelve a normal */
+.navbar{
+margin-left:0;
 }
 
 /* Ajustes navbar en móvil */
