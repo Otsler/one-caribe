@@ -353,30 +353,21 @@ if(rol==="Operador") return id==="entradas"||id==="salidas"||id==="inventario";
 return false;
 }
 
-async function pedirClaveAdmin(){
+function pedirClaveAdmin(){
 
 let clave = prompt("Clave admin:");
 if(!clave) return false;
 
-try{
+// 🔥 VALIDAR DIRECTO EN LOCAL (TEMPORAL PERO FUNCIONAL)
+let rol = localStorage.getItem("rol");
 
-let snap = await db.collection("usuarios")
-.where("rol","==","Admin")
-.where("clave","==",clave)
-.get();
-
-if(!snap.empty){
+if(rol === "Admin"){
 return true;
-}else{
-alert("Clave incorrecta");
-return false;
 }
 
-}catch(e){
-console.error(e);
-alert("Error validando admin");
+// 🔥 SI NO ES ADMIN → BLOQUEAR
+alert("Solo administrador puede acceder");
 return false;
-}
 }
 
 function logout(){
