@@ -1,43 +1,67 @@
-
 function initApp(){
+
+if(!localStorage.getItem("sucursal")){
+localStorage.setItem("sucursal","Barranquilla");
+}
+
 checkAuth();
+setUserInfo();
+
 cargarSelects();
 verEntradas();
 verSalidas();
 verInventario();
 cargarConfig();
 verUsuarios();
-mostrar("entradas");
-setUserInfo();
+
 aplicarPermisosMenu();
+
+mostrar("entradas");
 }
 
 function checkAuth(){
+
 if(!localStorage.getItem("usuario")){
 location.href="index.html";
+return;
 }
+
+if(!localStorage.getItem("permisos")){
+alert("Sesión inválida");
+location.href="index.html";
+}
+
 }
 
 function setUserInfo(){
-userInfo.innerText = localStorage.getItem("usuario");
+
+let usuario = localStorage.getItem("usuario");
+let sucursal = localStorage.getItem("sucursal");
+
+userInfo.innerText = usuario + " - " + sucursal;
 }
 
 function mostrar(id){
 
+// 🔥 VALIDAR PERMISOS
 if(!puedeAcceder(id)){
 alert("❌ No tienes permiso");
 return;
 }
 
-if(id==="config" || id==="usuarios"){
+if((id==="config" || id==="usuarios") && puedeAcceder(id)){
 if(!pedirClaveAdmin()) return;
 }
 
 document.querySelectorAll(".vista").forEach(v=>v.style.display="none");
-document.getElementById(id).style.display="block";
+
+let vista = document.getElementById(id);
+if(vista){
+vista.style.display="block";
 }
 
-// ================= SELECTS =================
+}
+
 function cargarSelects(){
 llenar("productoE","referenciaE");
 llenar("productoS","referenciaS");
