@@ -21,7 +21,7 @@ function setUserInfo(){
 userInfo.innerText = localStorage.getItem("usuario");
 }
 
-function mostrar(id){
+async function mostrar(id){
 
 if(!puedeAcceder(id)){
 alert("❌ No tienes permiso");
@@ -29,13 +29,13 @@ return;
 }
 
 if(id==="config" || id==="usuarios"){
-if(!pedirClaveAdmin()) return;
+let ok = await pedirClaveAdmin();
+if(!ok) return;
 }
 
 document.querySelectorAll(".vista").forEach(v=>v.style.display="none");
 document.getElementById(id).style.display="block";
 }
-
 // ================= SELECTS =================
 function cargarSelects(){
 llenar("productoE","referenciaE");
