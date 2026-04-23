@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link rel="icon" type="image/x-icon" href="OTS.ico">
+
+</head>
+
+<style>
+body{
+font-family:Arial;
+background:#1e293b;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+margin:0;
+}
+
+.box{
+background:white;
+padding:30px;
+border-radius:10px;
+width:300px;
+box-shadow:0 4px 10px rgba(0,0,0,0.2);
+}
+
+h2{
+text-align:center;
+margin-bottom:20px;
+}
+
+input{
+width:100%;
+padding:10px;
+margin:10px 0;
+border-radius:6px;
+border:1px solid #ccc;
+}
+
+button{
+width:100%;
+padding:10px;
+background:#2563eb;
+color:white;
+border:none;
+border-radius:6px;
+cursor:pointer;
+}
+
+button:hover{
+background:#1d4ed8;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="box">
+<h2>OTS LOGISTIC</h2>
+
+<input id="usuario" placeholder="Usuario">
+<input id="clave" type="password" placeholder="Clave">
+
+<button onclick="login()">Ingresar</button>
+</div>
+<div style="position:absolute; bottom:15px; width:100%; text-align:center; color:white; font-size:13px;">
+© 2026 OTS LOGISTIC | Desarrollado por: <b>Otsler Suarez - 3028592985</b>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+<script>
+const firebaseConfig = {
+apiKey: "AIzaSy...",
+authDomain: "one-caribe.firebaseapp.com",
+projectId: "one-caribe"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+function login(){
+
+let u = document.getElementById("usuario").value.trim();
+let c = document.getElementById("clave").value.trim();
+
+if(!u || !c){
+alert("Ingrese datos");
+return;
+}
+
+db.collection("usuarios")
+.where("usuario","==",u)
+.where("clave","==",c)
+.get()
+.then(snapshot=>{
+
+if(snapshot.empty){
+alert("❌ Credenciales incorrectas");
+return;
+}
+
+let user = snapshot.docs[0].data();
+
+localStorage.setItem("usuario", user.usuario);
+localStorage.setItem("rol", user.rol);
+
+window.location.href = "app.html";
+
+})
+.catch(err=>{
+console.error(err);
+alert("Error de conexión");
+});
+
+}
+</script>
+
+</body>
+</html>
