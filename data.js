@@ -1,0 +1,4 @@
+const catalogo = {
+  productos: [],
+  referencias: {}
+};
